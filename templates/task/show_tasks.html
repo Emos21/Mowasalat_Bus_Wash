@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+
+
+{% block title %}Show Task{% endblock %}
+{% block content %}
+{% if request.user.is_superuser %}
+<div id="show_task_nav">
+  <a href="{% url 'show_tasks_all' 'all' %}">
+    <ion-icon class="ion_task" name="folder-open-outline"></ion-icon>
+    All Task
+  </a>
+  <a href="{% url 'add_task' %}">
+    <ion-icon class="ion_task" name="add-circle-outline"></ion-icon>
+    New Task
+  </a>
+</div>
+
+{% endif %}
+
+
+<div class="row">
+  {% for task in tasks %}
+  <div class="col-md-3" style="margin-top: 3%">
+    <a href="/edit_task/{{ task.id }}">
+      <div id="task_card">
+        <div id="prof_img_container">
+          <div id="prof_img_holder">
+            <img src="/static/assets/prof.jpg" alt="user_task_img">
+          </div>
+        </div>
+
+        <div id="task_card_body">
+          <div>
+            <p>{{ task.user.username }}</p>
+            <p id="task_title">{{ task.task_name }}</p>
+            <p>{{ task.status }}</p>
+            <div id="task_icons">
+              <form method="POST" action="/timestamp/{{task.id}}">
+                {% csrf_token %}
+                <button type="submit">
+                  <i class="fa-solid fa-clock"></i>
+                </button>
+              </form>
+
+
+            </div>
+          </div>
+        </div>
+      </div>
+    </a>
+    <a href="{% url 'edit_task' task.pk %}"></a>
+
+  </div>
+
+  {% endfor %}
+</div>
+
+{% endblock %}

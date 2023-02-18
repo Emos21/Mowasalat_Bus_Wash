@@ -1,0 +1,5 @@
+<option value="">---------</option>
+{% for typeofwash in typeofwashs %}
+<option value="{{ typeofwash.pk }}">{{ typeofwash.name }}</option>
+{% endfor %}
+

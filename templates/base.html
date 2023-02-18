@@ -1,0 +1,333 @@
+{% load static %}
+{% load customfilter %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}{% endblock %}</title>
+    <link type="text/css" rel="stylesheet"
+    href="{% static 'assets2/css/theme-default/libs/DataTables/jquery.dataTables.css' %} " />
+  <link href="{% static 'css/buttons.dataTables.min.css' %}" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/material-design/css/materialdesignicons.min.css' %}">
+  
+
+    <link rel="stylesheet" href="{% static 'assets/default/css/bootstrap.min.css' %}">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'assets/css/dash_styles.css' %}">
+    <link rel="stylesheet" href="{% static 'assets/css/styles.css' %}">
+    
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css" />
+
+
+    <script src="{% static 'assets/default/js/jquery-3.6.0.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'assets/default/js/script.js' %}"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <script src="http://cdnjs.cloudflare.com/ajax/libs/raphael/2.1.0/raphael-min.js"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/morris.js/0.5.1/morris.min.js"
+    integrity="sha512-6Cwk0kyyPu8pyO9DdwyN+jcGzvZQbUzQNLI0PadCY3ikWFXW9Jkat+yrnloE63dzAKmJ1WNeryPd1yszfj7kqQ=="
+    crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/morris.js/0.5.1/morris.css"
+    integrity="sha512-fjy4e481VEA/OTVR4+WHMlZ4wcX/+ohNWKpVfb7q+YNnOCS++4ZDn3Vi6EaA2HJ89VXARJt7VvuAKaQ/gs1CbQ=="
+    crossorigin="anonymous" referrerpolicy="no-referrer" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/morris.js/0.5.1/morris.js"
+    integrity="sha512-CYkt9kgBjbQrIKQGbyezfkmhmmFwMF2VVZjdGgYJJm3KnV53Ao+aFnndz2YbmMX2Y8XGBCUzBxFTqg2LAuIJzw=="
+    crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <style>
+        .dataTables_length {
+            margin-left: 15px !important;
+          }
+    </style>
+</head>
+
+
+<body>
+    <!-- =============== Navigation ================ -->
+    <div class="">
+        {% include 'sidebar.html' %}
+        <div class="main">
+            {% include 'navbar.html' %}
+
+            <div id="content_container">
+                {% block content %}
+                {% if messages %}
+                <div class="row">
+                    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                        {% for message in messages %}
+                        <div
+                            class="alert alert-{% if message.extra_tags %}{{ message.tags|replaceBlank:message.extra_tags|replaceBlank:' ' }}{% else %}{{ message.tags }}{% endif %} w-100 rounded-0 mb-2 redirect-msg">
+                            <div class="d-flex w-100">
+                                <div class="col-auto flex-shrink-1 flex-grow-1">{{ message|safe }}</div>
+                                <div class="col-auto text-center">
+                                    <button class="btn-close btn-sm text-sm" type="button"
+                                        onclick="$(this).closest('.alert').remove()"></button>
+                                </div>
+                            </div>
+
+                        </div>
+                        {% if message.extra_tags != 'stay' %}
+                        <script>
+                            $(function () {
+                                if ($('.redirect-msg').length > 0) {
+                                    setTimeout(() => {
+                                        $('.redirect-msg').hide('slideUp')
+                                        setTimeout(() => {
+                                            $('.redirect-msg').remove()
+                                        }, 500)
+                                    }, 3500)
+                                }
+
+                            })
+                        </script>
+                        {% endif %}
+                        {% endfor %}
+                    </div>
+                </div>{% endif %}
+                {% endblock %}
+            </div>
+
+
+
+        </div>
+    </div>
+
+
+
+    {% block ScriptBlock %} {% endblock ScriptBlock %}
+    <div class="modal fade" id="uni_modal" role='dialog'>
+        <div class="modal-dialog" role="document">
+            <div class="modal-content rounded-0">
+                <div class="modal-header">
+                    <h5 class="modal-title"></h5>
+                </div>
+                <div class="modal-body">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn  btn-sm btn-flat btn-primary rounded-0" id='submit'
+                        onclick="$('#uni_modal form').submit()">Save</button>
+                    <button type="button" class="btn btn-sm btn-flat btn-light border rounded-0"
+                        data-bs-dismiss="modal">Cancel</button>
+                </div>
+                <div class="modal-sub-footer">
+                    <button type="button" class="btn btn-sm btn-flat btn-light border rounded-0"
+                        data-dismiss="modal">Close</button>
+                    <!-- if close reload page -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="confirm_modal" role='dialog'>
+        <div class="modal-dialog" role="document">
+            <div class="modal-content rounded-0">
+                <div class="modal-header">
+                    <h5 class="modal-title">Confirmation</h5>
+                </div>
+                <div class="modal-body">
+                    <div id="delete_content"></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-sm btn-flat btn-primary rounded-0" id='confirm'
+                        onclick="">Continue</button>
+                    <button type="button" class="btn btn-sm btn-flat btn-light border rounded-0"
+                        data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+   
+
+
+    
+
+    <script src="{% static 'assets/js/popper.min.js' %}"></script>
+
+    <script src="{% static 'assets/js/bootstrap.min.js' %}"></script>
+
+    <script src="{% static 'assets/js/black-dashboard.min.js' %}"></script>
+
+
+
+    <script src="{% static 'assets/js/main.js' %}"></script>
+
+    <script src="{% static 'assets/js/taskupload.js' %}"></script>
+
+
+
+    <!-- ====== ionicons ======= -->
+    <script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
+    <script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
+
+
+    
+
+        <script type="text/javascript" src="{% static 'js/jquery.dataTables.min.js' %} "></script>
+        <script type="text/javascript" src="{% static 'js/dataTables.buttons.min.js' %}"></script>
+        <script type="text/javascript" src="{% static 'js/buttons.flash.min.js' %}"></script>
+        <script type="text/javascript" src="{% static 'js/jszip.min.js' %}"></script>
+        <script type="text/javascript" src="{% static 'js/pdfmake.min.js' %}"></script>
+        <script type="text/javascript" src="{% static 'js/vfs_fonts.js' %}"></script>
+        <script type="text/javascript" src="{% static 'js/buttons.html5.min.js' %}"></script>
+        <script type="text/javascript" src="{% static 'js/vfs_fonts_2.js' %}"></script>
+        <script type="text/javascript" src="{% static 'js/buttons.print.min.js' %}"></script>
+        <script type="text/javascript" src="{% static 'js/datatables-fixed-columns.min.js' %}"></script>
+
+    <script>
+        const loader = $('<div>')
+        loader.attr('id', 'pre-loader')
+        loader.html('<div class="lds-default"><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div></div>')
+
+        window.start_loader = function () {
+            $('body').removeClass('loading')
+            if ($('#pre-loader').length > 0)
+                $('#pre-loader').remove();
+            $('body').append(loader)
+            $('body').addClass('loading')
+        }
+        window.end_loader = function () {
+            if ($('#pre-loader').length > 0)
+                $('#pre-loader').remove();
+            $('body').removeClass('loading')
+
+        }
+
+        window.uni_modal = function ($title = '', $url = '', $size = "") {
+            start_loader()
+            $.ajax({
+                url: $url,
+                error: err => {
+                    console.log()
+                    alert("Warning!! Fraud Qr")
+                    window.location.reload();
+                },
+                success: function (resp) {
+                    if (resp) {
+                        $('#uni_modal .modal-title').html($title)
+                        $('#uni_modal .modal-body').html(resp)
+                        if ($size != '') {
+                            $('#uni_modal .modal-dialog').addClass($size + '  modal-dialog-centered')
+                        } else {
+                            $('#uni_modal .modal-dialog').removeAttr("class").addClass("modal-dialog modal-md modal-dialog-centered")
+                        }
+                        $('#uni_modal').modal({
+                            backdrop: 'static',
+                            keyboard: false,
+                            focus: true
+                        })
+                        $('#uni_modal').modal('show')
+                        end_loader()
+                    }
+                }
+            })
+        }
+        window._conf = function ($msg = '', $func = '', $params = []) {
+            $('#confirm_modal #confirm').attr('onclick', $func + "(" + $params.join(',') + ")")
+            $('#confirm_modal .modal-body').html($msg)
+            $('#confirm_modal').modal('show')
+        }
+
+        $(function () {
+            $('#uni_modal').on('shown.bs.modal', function () {
+                if ($('#e-details').length > 0) {
+                    var delete_btn = $('<button id="delete-btn" class="btn btn-danger btn-sm bg-gradient rounded-0 me-2"><i class="fa fa-trash"></i> Delete</button>')
+                    var edit_btn = $('<a id="edit-btn" href="" class="btn btn-primary btn-sm bg-gradient rounded-0 me-2"><i class="fa fa-edit"></i> Edit</a>')
+                    $(this).find('.modal-sub-footer').prepend(delete_btn)
+                    $(this).find('.modal-sub-footer').prepend(edit_btn)
+                    delete_btn.click(function () {
+                        _conf("Are you sure to delete this employee?", "delete_employee")
+                    })
+
+                    $('#uni_modal').on('hide.bs.modal', function () {
+                        delete_btn.remove()
+                        edit_btn.remove()
+                    })
+
+                }
+            })
+        })
+
+        function delete_employee() {
+            start_loader()
+            $.ajax({
+                url: emp_delete_url,
+                error: err => {
+                    console.error(err)
+                    alert("An error occurred.")
+                    end_loader()
+                },
+                success: function (resp) {
+                    if (resp.status == 'success') {
+                        location.reload()
+                    } else if (!!resp.msg) {
+                        alert(resp.msg)
+                    }
+                    end_loader()
+                }
+            })
+        }
+
+
+        // add hovered class to selected list item
+        let list = document.querySelectorAll(".navigation li");
+
+        function activeLink() {
+            list.forEach((item) => {
+                item.classList.remove("hovered");
+            });
+            this.classList.add("hovered");
+        }
+
+        list.forEach((item) => item.addEventListener("mouseover", activeLink));
+
+        // Menu Toggle
+        let toggle = document.querySelector(".toggle");
+        let navigation = document.querySelector(".navigation");
+        let main = document.querySelector(".main");
+
+        toggle.onclick = function () {
+            navigation.classList.toggle("active");
+            main.classList.toggle("active");
+        };
+
+        {% if dataTable %}
+            $('.table-responsive .table.table-condensed.table-sm').not('.server-side').each(function (i, e) {
+            var lengthMenu = $(e).data('menutext') ?? [10, 25, 50, 75, 100];
+            var fixedCols = $(e).data('fixedcls');
+            var $fCOps = {
+                dom: 'Blfrtip',
+                buttons: [
+                'copy', 'csv', { extend: 'excelHtml5', footer: true }, 'pdf', 'print'
+                ],
+                "order": [],
+                "language": {
+                // "lengthMenu": lengthMenu,
+                "search": '<i class="fa fa-search"></i>',
+                "paginate": {
+                    "previous": '<i class="fa fa-angle-left"></i>',
+                    "next": '<i class="fa fa-angle-right"></i>'
+                }
+                }
+            };
+            if (fixedCols == "true" || fixedCols == true) {
+                // $fCOps['scrollY'] = 200;
+                // $fCOps['scrollX'] = true;
+                // $fCOps['scrollCollapse'] = true;
+                // $fCOps['scroller'] = true;
+                // $fCOps['fixedColumns'] = {
+                // 	left: 2
+                // }
+                // console.log($fCOps);
+            }
+            $(e).DataTable($fCOps);
+            });
+        {% endif %}
+
+    </script>
+
+</body>

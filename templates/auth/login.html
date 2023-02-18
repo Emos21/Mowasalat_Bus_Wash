@@ -1,0 +1,101 @@
+{% extends 'auth/base.html' %}
+{% load static %}
+{% block auth_content %}
+
+
+<main>
+    <div class="box">
+        <div class="inner-box">
+            <div class="carousel">
+                <div class="images-wrapper">
+                    <img src="{% static 'assets/login_img.png' %}" class="image img-1 show" alt="" />
+                </div>
+            </div>
+            
+            <div class="forms-wrap">
+
+                <form id="login-user" action="" autocomplete="off" class="sign-in-form" method="POST">
+
+                    {% csrf_token %}
+
+                    <div class="actual-form">
+                        <div class="input-wrap">
+                            <input type="text" class="input-field" name="username" autocomplete="off" required />
+                            <label for="username">User Name</label>
+                        </div>
+
+                        <div class="input-wrap">
+                            <input type="password" class="input-field" id="form_input" autocomplete="off"
+                                name="password" id="password" required />
+                            <label for="password" id="form_label">Password</label>
+                        </div>
+
+                        <input type="submit" value="Sign In" class="sign-btn" />
+
+                        <p class="text">
+                            Forgotten your password or you login datails?
+                            <a href="#">Get help</a> signing in
+                        </p>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</main>
+
+
+
+{% endblock %}
+{% block ScriptBlock %}
+<script>
+    $(function () {
+        $('#login-user').submit(function (e) {
+            e.preventDefault();
+            var _this = $(this)
+            $('.err-msg').remove();
+            var el = $('<div>')
+            el.addClass("alert alert-danger err-msg")
+            el.hide()
+            if (_this[0].checkValidity() == false) {
+                _this[0].reportValidity();
+                return false;
+            }
+            start_loader();
+            $.ajax({
+                headers: {
+                    "X-CSRFToken": '{{csrf_token}}'
+                },
+                url: "{% url 'login-user' %}",
+                data: new FormData($(this)[0]),
+                cache: false,
+                contentType: false,
+                processData: false,
+                method: 'POST',
+                type: 'POST',
+                dataType: 'json',
+                error: err => {
+                    console.log(err)
+                    alert("An error occured", 'error');
+                    end_loader();
+                },
+                success: function (resp) {
+                    if (typeof resp == 'object' && resp.status == 'success') {
+                        el.removeClass("alert alert-danger err-msg")
+                        location.href = "{% url 'home' %}"
+                    } else if (resp.status == 'failed' && !!resp.msg) {
+                        el.text(resp.msg)
+                    } else {
+                        el.text("An error occured", 'error');
+                        end_loader();
+                        console.err(resp)
+                    }
+                    _this.prepend(el)
+                    el.show('slow')
+                    $("html, body, .modal").scrollTop(0);
+                    end_loader()
+                }
+            })
+        })
+    })
+</script>
+{% endblock ScriptBlock %}

@@ -1,0 +1,314 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}
+Work Done
+{% endblock title %}
+
+{% block content %}
+{% if user.is_authenticated %}
+
+
+
+
+<div class="cardBox">
+
+    <a href="{% url 'show_tasks' %}">
+        <div id="card">
+
+            <div>
+                <div class="numbers">{{totaltask}}</div>
+                <div class="cardName">Total Task</div>
+            </div>
+
+            <div class="iconBx">
+                <ion-icon name="clipboard-outline"></ion-icon>
+            </div>
+        </div>
+    </a>
+
+    <a href="">
+        <div id="card">
+            <div>
+                <div class="numbers">{{ damagenotifications }}</div>
+                <div class="cardName">Notifications</div>
+            </div>
+
+            <div class="iconBx">
+                <ion-icon name="notifications-outline"></ion-icon>
+            </div>
+        </div>
+    </a>
+
+    <a href="{% url 'site_list' %}">
+        <div id="card">
+            <div>
+                <div class="numbers">{{totaltsites}}</div>
+                <div class="cardName">Shelters</div>
+            </div>
+
+            <div class="iconBx">
+                <ion-icon name="storefront-outline"></ion-icon>
+            </div>
+        </div>
+    </a>
+    <a href="{% url 'site_list' %}">
+        <div id="card">
+            <div>
+                <div class="numbers">{{totaltlocations}}</div>
+                <div class="cardName">Locations </div>
+            </div>
+
+            <div class="iconBx">
+                <ion-icon name="location-outline"></ion-icon>
+            </div>
+        </div>
+    </a>
+
+</div>
+
+<style>
+    #filter_container {
+        padding-bottom: 5%;
+    }
+
+    #month_graph .form-group {
+        margin: 0px 25px;
+    }
+
+    #month_graph input {
+        border: none;
+        outline: none;
+        border-bottom: 1px solid #61A4F2;
+        color: #504f4f;
+    }
+
+    #month_graph input:hover {
+        outline: none;
+    }
+
+    #filter_span {
+        border: 1px solid #61A4F2;
+        height: 100%;
+        padding: 2px 5px;
+        border-bottom-left-radius: 30px;
+        border-bottom-right-radius: 30px;
+        transition: .4s ease-in;
+        margin-left: 10%;
+        margin-top: 3%;
+    }
+
+    #filter_span:hover {
+        background-color: #000;
+        border: 1px solid #000;
+        color: #fff;
+    }
+
+    #filter_span span {
+        font-size: 1.5rem;
+    }
+</style>
+
+<section id="dash_section_b mb-5">
+    <div class="row">
+        <div class="col-md-8">
+            <div id="month_graph">
+                <div class="form d-flex " id="filter_container">
+                    <div class="form-group">
+                        <label for="" class="control-label">From:-</label>
+                        <input type="date" name="" id="start_date" class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label for="" class="control-label">To:-</label>
+                        <input type="date" name="" id="end_date" class="form-control">
+                    </div>
+                    <div id="filter_span">
+                        <span id="apply-filter">
+                            <ion-icon name="filter-outline"></ion-icon>
+                        </span>
+                    </div>
+
+                </div>
+                <div class="bottom_card_sec sec_a">
+                    <canvas id="myChart"></canvas>
+
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="bottom_card_sec">
+                <canvas id="mydonutChart"></canvas>
+            </div>
+        </div>
+
+    </div>
+</section>
+
+<style>
+    .sds {
+        color: rgba(29, 140, 248, 0.0);
+    }
+</style>
+
+{% else %}
+login first
+{% endif %}
+<script>
+    const barColors = [];
+    let getTaskMonth = () => {
+        $.ajax({
+            url: '/get/Month/Task/Ajax',
+            method: 'GET',
+            success: (data) => {
+                console.log(data)
+                const ctx = document.getElementById('myChart').getContext('2d');
+                const myChart = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: data['labels'],
+                        datasets: [{
+                            label: 'Task by date range',
+                            data: Object.values(data['data']),
+                            backgroundColor: [
+                                '#9364e9',
+                                '#61A4F2',
+                                '#ce64e9',
+                            ],
+                            borderColor: [
+                                '#9364e9',
+                                '#61A4F2',
+                                '#ce64e9',
+                            ],
+                            borderWidth: 1,
+                            barPercentage: 0.4,
+
+                        }]
+                    },
+                    options: {
+                        scales: {
+                            y: {
+                                beginAtZero: true
+                            }
+                        }
+                    }
+                });
+                return "success"
+
+            },
+            error: (data) => {
+                console.log(data);
+            }
+        })
+    }
+    let getTaskStastus = () => {
+        $.ajax({
+            url: '/get/Damage-Task/Count-Ajax',
+            method: 'GET',
+            success: (data) => {
+                var nutty = document.getElementById("mydonutChart");
+                var mydonutChart = new Chart(nutty, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Task With Damages', 'Clean Task'],
+                        datasets: [{
+                            label: 'Task Damage report',
+                            data: data,
+                            backgroundColor: [
+                                'red',
+                                '#008cff',
+                            ],
+                            borderColor: [
+                                'red',
+                                '#008cff',
+                            ],
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        //cutoutPercentage: 40,
+                        responsive: false,
+
+                    }
+                });
+                return "success"
+            },
+            error: (data) => {
+                console.log(data);
+            }
+        })
+    }
+    function dynamicColors() {
+        var r = Math.floor(Math.random() * 255);
+        var g = Math.floor(Math.random() * 255);
+        var b = Math.floor(Math.random() * 255);
+        return "rgba(" + r + "," + g + "," + b + ")";
+    }
+
+    function poolColors(a) {
+        var pool = [];
+        for (i = 0; i < a; i++) {
+            pool.push(dynamicColors());
+        }
+        return pool;
+    }
+    getTaskMonth()
+    getTaskStastus()
+
+    $(() => {
+        $('#apply-filter').on('click', (e) => {
+            var start_date = $('#start_date').val();
+            var end_date = $('#end_date').val();
+            console.log('here1')
+            $.ajax({
+                url: `/get/Task-By-Date-Range/${start_date}/to/${end_date}`,
+                method: 'GET',
+                success: (data) => {
+                    console.log('here2')
+                    console.log(data)
+
+                    const ctx2 = document.getElementById('myChart').getContext('2d');
+                    var chartExist = Chart.getChart("myChart"); // <canvas> id
+                    if (chartExist != undefined)
+                        chartExist.destroy();
+
+                    const myChart2 = new Chart(ctx2, {
+                        type: 'bar',
+                        data: {
+                            labels: data['labels'],
+                            datasets: [{
+                                label: 'Task By Month',
+                                data: Object.values(data['data']),
+                                backgroundColor: [
+                                    '#008cff'
+                                ],
+                                borderColor: [
+                                    '#008cff'
+                                ],
+                                borderWidth: 1
+                            }]
+                        },
+                        options: {
+                            scales: {
+                                y: {
+                                    beginAtZero: true
+                                }
+                            }
+                        }
+                    });
+                },
+                error: (data) => {
+                    console.log(data);
+                }
+            })
+
+        });
+    })
+
+
+    // <--------- Doughnut --------->
+
+
+
+
+</script>
+{% endblock content %}

@@ -1,0 +1,350 @@
+{% extends "base.html" %}
+{% load customfilter %}
+{% block title %}
+Edit Task
+{% endblock %}
+{% block content %}
+
+{% if messages%}
+<div id="message-section" style="padding: 10px 10px 0px 10px !important">
+  {% for message in messages %}
+  <div class="alert alert-danger alert-callout">
+    <i class="fas fa-exclamation-triangle"></i> {{ message }}
+
+  </div>
+  {% endfor %}
+</div>
+{% endif %}
+<h5>Task Details : </h5>
+<div class="card mb-3 mt-3">
+  <div class="card-header">
+    Task | {{task.task_name}}
+  </div>
+  <div class="card-body">
+    <div class="row mb-4">
+      <div class="col-md-4">
+        <b class="text-muted"><i class="fa-sharp fa-solid fa-greater-than" style=" font-size: 10px !important;"></i><i
+            class="fa-sharp fa-solid fa-greater-than" style=" font-size: 10px !important;"></i> Initial Odometer Reading
+          : </b> {{task.odometerbefore|checkIfNull}}
+      </div>
+      <div class="col-md-4">
+        <b class="text-muted"><i class="fa-sharp fa-solid fa-greater-than" style=" font-size: 10px !important;"></i><i
+            class="fa-sharp fa-solid fa-greater-than" style=" font-size: 10px !important;"></i> Final Odometer Reading :
+        </b> {{task.odometerafter|checkIfNull}}
+      </div>
+      <div class="col-md-4">
+        <b class="text-muted"><i class="fa-sharp fa-solid fa-greater-than" style=" font-size: 10px !important;"></i><i
+            class="fa-sharp fa-solid fa-greater-than" style=" font-size: 10px !important;"></i> Total Reading : </b>
+        {{total_odo}}
+
+      </div>
+      <div class="col-md-4">
+        <b class="text-muted"><i class="fa-sharp fa-solid fa-greater-than" style=" font-size: 10px !important;"></i><i
+          class="fa-sharp fa-solid fa-greater-than" style=" font-size: 10px !important;"></i> Shelter Type: </b>
+          {{task.shelter_type.name|checkIfNull}}
+      </div>
+      {% if task.beforewash_task_img %}
+        <div class="col-md-4">
+          <b class="text-muted"><i class="fa-sharp fa-solid fa-greater-than" style=" font-size: 10px !important;"></i><i
+            class="fa-sharp fa-solid fa-greater-than" style=" font-size: 10px !important;"></i> Site :
+        </b> {{task.site_id.site_code|checkIfNull}}
+        </div>
+        <div class="col-md-4">
+          <b class="text-muted"><i class="fa-sharp fa-solid fa-greater-than" style=" font-size: 10px !important;"></i><i
+            class="fa-sharp fa-solid fa-greater-than" style=" font-size: 10px !important;"></i> Location :
+        </b> {{task.site_id.location.name|checkIfNull}}
+        </div>
+        <div class="col-md-4">
+          <b class="text-muted"><i class="fa-sharp fa-solid fa-greater-than" style=" font-size: 10px !important;"></i><i
+            class="fa-sharp fa-solid fa-greater-than" style=" font-size: 10px !important;"></i> Before Wash Img :
+        </b> <a href="{{task.beforewash_task_img.url}}" target="_blank"><i class="fa-solid fa-download"></i></a>
+        </div>
+        <div class="col-md-4">
+          <b class="text-muted"><i class="fa-sharp fa-solid fa-greater-than" style=" font-size: 10px !important;"></i><i
+            class="fa-sharp fa-solid fa-greater-than" style=" font-size: 10px !important;"></i> Start Time :
+        </b> {{task.start_time}}
+        </div>
+      {% endif %}
+      {% if task.afterwash_task_img %}
+      <div class="col-md-4">
+        <b class="text-muted"><i class="fa-sharp fa-solid fa-greater-than" style=" font-size: 10px !important;"></i><i
+          class="fa-sharp fa-solid fa-greater-than" style=" font-size: 10px !important;"></i> After Wash Img :
+      </b> <a href="{{task.afterwash_task_img.url}}" target="_blank"><i class="fa-solid fa-download"></i></a>
+      </div>
+      <div class="col-md-4">
+        <b class="text-muted"><i class="fa-sharp fa-solid fa-greater-than" style=" font-size: 10px !important;"></i><i
+          class="fa-sharp fa-solid fa-greater-than" style=" font-size: 10px !important;"></i> Stop Time :
+      </b> {{task.stop_time}}
+      </div>
+      {% endif %}
+    </div>
+    <div class="alert alert-primary p-3 d-flex">
+      <i class="fa-solid fa-circle-info fs-2"></i>
+      <div class="" style="margin-left: 1% !important;">{{task.task_description}}</div>
+    </div>
+    {% if task.odometerbefore %}
+    <h5> Site Map: </h5>
+    <div class="mt-2 mb-3">
+      <iframe
+        src="{{ task.map_url }}"
+        width="100%" height="450" style="border:0;" allowfullscreen="" loading="lazy"
+        referrerpolicy="no-referrer-when-downgrade"></iframe>
+    </div>
+
+    {% if task.odometerafter and task.is_scanned == False %}
+    <button id="scanner-link-two" class="btn btn-sm btn-warning" data_url="{% url 'view-scanner-task' task.id %}" style="width: 100px;">
+      <ion-icon name="scan-outline"></ion-icon>
+      scan QR
+    </button>
+
+    {% elif not task.odometerafter and task.is_scanned == False %}
+    <span class="btn btn-primary btn-sm" style="float: right !important;" data-toggle="modal"
+      data-target="#add-after-odo"><i class="fa-solid fa-plus"></i> Add Final Odometer</span>
+    {% endif %}
+    {% else %}
+    <span class="btn btn-outline-primary btn-sm" data-toggle="modal" data-target="#add-before-odo"><i
+        class="fa-solid fa-plus"></i> Add Initial Odometer</span>
+    {% endif %}
+  </div>
+</div>
+{% if task.is_scanned and not task.beforewash_task_img %}
+
+
+<div>
+  <form method="post" action="{% url 'maintainTask' %}" enctype="multipart/form-data">
+    {% csrf_token %}
+
+    <p>
+      <label for="id_name">Site Name:</label>
+      <input type="text" name="site_name" value="{{task.site_id.site_code}}" maxlength="60" required="" id="id_name">
+    </p>
+    <p>
+      <label for="id_location">Location:</label>
+      <select name="location" id="id_location">
+
+        <option value="{{task.site_id.location.id}}">{{task.site_id.location.name}}</option>
+
+      </select>
+    </p>
+  
+
+    <p>
+      <label for="id_beforewashimg">Beforewashing:</label>
+      <input type="file" name="beforewashing" accept="image/*" id="id_beforewashimg" required="">
+    </p>
+
+    <div>
+      <span class="btn btn-primary" id="add-damage">Add Damage</span>
+      <div class="card border-0">
+        <div class="card-body">
+          <div class="table-responsive">
+            <table class="table table-sm table-condensed table-bordered table-stripped">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Damage</th>
+                  <th>Comment</th>
+
+                </tr>
+              </thead>
+              <tbody>
+                {% if damages_datas %}
+                {% for damage_data in damages_datas %}
+                <tr>
+                  <td></td>
+                  <td>{{damage_data.damage.name}}</td>
+                  <td>{{damage_data.comment}}</td>
+                </tr>
+                {% endfor %}
+                {% else %}
+                <tr>
+                  <td colspan="3" class="text-center">No Damages Recorded! </td>
+                </tr>
+                {% endif %}
+              </tbody>
+            </table>
+          </div>
+          <div id="data-damage">
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+    <input type="hidden" name="task_id" value="{{task.id}}">
+    <input type="submit" value="Submit" class="submit_add_btn">
+  </form>
+</div>
+
+{% endif %}
+{% if task.is_scanned %}
+<div class="table-responsive mt-3">
+  <h5>Damages: </h5>
+  <table class="table table-sm table-condensed table-bordered table-stripped">
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Damage</th>
+        <th>Comment</th>
+
+      </tr>
+    </thead>
+    <tbody>
+      {% if damage_data %}
+      {% for dm_data in damage_data %}
+      <tr>
+        <td>-</td>
+        <td>{{dm_data.damage.name}}</td>
+        <td>{{dm_data.comment}}</td>
+      </tr>
+      {% endfor %}
+      {% else %}
+      <tr>
+        <td colspan="3" class="text-center">No Damages Recorded! </td>
+      </tr>
+      {% endif %}
+    </tbody>
+  </table>
+</div>
+{% endif %}
+
+{% if task.is_scanned and task.beforewash_task_img and not task.afterwash_task_img %}
+<form action="{% url 'maintainTask' %}" method="POST" enctype="multipart/form-data">
+  {% csrf_token %}
+  <p>
+    <label for="id_beforewashimg">After Wash Img:</label>
+    <input type="file" name="afterwashing" accept="image/*" id="id_beforewashimg" required="">
+  </p>
+  <input type="hidden" name="task_id" value="{{task.id}}">
+  <input type="submit" value="Submit" class="submit_add_btn">
+</form>
+{% endif %}
+
+
+
+<!-- <iframe src="{{ task.tasklocation }}" style="border:0;" allowfullscreen="" loading="lazy"
+  referrerpolicy="no-referrer-when-downgrade"></iframe> -->
+
+
+<div class="modal fade" id="add-before-odo" role="dialog">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <form action="{% url 'maintainOdoMeter' %}" method="post">
+        {% csrf_token %}
+        <div class="modal-body">
+
+          <div class="alert alert-primary p-2 d-flex">
+            <i class="fa-solid fa-exclamation fs-2"></i>
+            <div class="" style="margin-left: 3% !important;">Add Intial odometer below to access the site map to the
+              specified task!</div>
+          </div>
+          <div class="form-group">
+            <label for="" class="control-label">Intial Odometer Reading</label>
+            <input type="text" name="before_odo" class="form-control">
+            <input type="hidden" name="task_id" value="{{task.id}}">
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="submit" class="btn btn-outline-primary btn-sm">Save</button>
+          <span class="btn btn-sm btn-default" data-dismiss="modal">Close</span>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="add-after-odo" role="dialog">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <form action="{% url 'maintainOdoMeter' %}" method="post">
+        {% csrf_token %}
+        <div class="modal-body">
+
+          <div class="alert alert-primary p-2 d-flex">
+            <i class="fa-solid fa-exclamation fs-2"></i>
+            <div class="" style="margin-left: 3% !important;">Add Final odometer reading below to activate the Scan
+              QRCode feature on the task!</div>
+          </div>
+          <div class="form-group">
+            <label for="" class="control-label">Final Odometer Reading</label>
+            <input type="text" name="after_odo" class="form-control">
+            <input type="hidden" name="task_id" value="{{task.id}}">
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="submit" class="btn btn-outline-primary btn-sm">Save</button>
+          <span class="btn btn-sm btn-default" data-dismiss="modal">Close</span>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+
+
+<script>
+  $(() => {
+
+    $('#scanner-link-two').click(function () {
+      console.log('data')
+      uni_modal("Shelter scan", $(this).attr('data_url'))
+    });
+    setTimeout(() => {
+      $('#message-section').slideUp(20);
+    }, 10000);
+
+    var damageBody = () => {
+      var body = $(`
+            <div class="parent-damage row">
+                <div class="col-md-3">
+                    <span class="btn btn-sm btn-danger mt-2 delete-damages">Remove</span>
+                </div>
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label for="" class="control-label">Damages</label>
+                        <select name="config_damage" id="" class="form-control">
+                          <option value="">------------------</option>
+                          {% for damage in damages %}
+                          <option value="{{damage.id}}">{{damage.name}}</option>
+                          {% endfor %}
+                        </select>
+                        
+                        <input type="hidden" name="damage_id" value=0>
+    
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label for="" class="control-label">Comment</label>
+                        <input name="comment" id="" class="form-control">
+                    
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label for="" class="control-label">Image</label>
+                        <input type="file" name="avatar" id="id_beforewashimg" class="form-control">
+                    
+                    </div>
+                </div>
+            </div>
+            `).clone();
+      return body;
+    }
+    $('#add-damage').on('click', (e) => {
+      var body = damageBody();
+      $('#data-damage').append(body)
+      $('.delete-damages').on('click', (e) => {
+        var parentCol = $(e.currentTarget).parent('.col-md-3');
+        var parentDiv = $(parentCol).parent('.parent-damage')
+        console.log(parentDiv);
+        $(parentDiv).remove();
+
+      })
+
+    })
+
+  })
+</script>
+
+{% endblock content %}

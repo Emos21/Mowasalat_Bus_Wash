@@ -1,0 +1,125 @@
+{% load static %}
+{% load customfilter %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        th{
+            background-color: lightgrey !important;
+        }
+        .right-align{
+            text-align: right;
+            font-weight: 700;
+            
+        }
+        thead{
+            height: 50px !important;
+        }
+        .column-data{
+            border: 1px solid black;
+            
+        }
+        .filter-column{
+            padding: 2px;
+            color: rgb(199, 199, 199);
+        }
+        .logo{
+            width:100px;
+            height: 100px;
+        }
+        .logo-container{
+            border-bottom: 1px solid black ;
+            padding-bottom: 5px !important;
+        }
+        .company-detail{
+           
+            padding-top: 60px;
+        }
+    </style>
+</head>
+<body>
+   
+    <table class="logo-container">
+        <tr>
+            <td colspan="6">
+                <img src="{{logo}}" class="logo" alt="">
+            </td>
+            
+            <td colspan="6" class="right-align">
+                <p  class="company-detail">
+                    Company Aamal <br>
+                    +974 4033 7111,<br>
+                    info@aamal-services.com<br>
+                </p>
+
+            </td>
+        </tr>
+    </table>
+    <table>
+        <p><b><u>Report Filters</u></b></p>
+        
+        <tr>
+            <td colspan="4" class="filter-column"><b>From Date : </b> {{filter_data.from_date|checkIfNull}}</td>
+            <td colspan="4" class="filter-column"><b>To Date : </b> {{filter_data.end_date|checkIfNull}}</td>
+            <td colspan="4" class="filter-column"><b>Status : </b> {{filter_data.status|checkIfNull}}</td>
+            
+            
+        </tr>    
+    </table>
+    <table style="margin-top: 15px;">
+        <thead> 
+            <tr>
+                <th>Name</th>
+                <th>Description</th>
+                <th>Start Time</th>
+                <th>End Time</th>
+                <th>Status</th>
+                <th>Initial Odo</th>
+                <th>Final Odo</th>
+                <th>Owner</th>
+                <th>Created At</th>
+                <th>Shelter Type</th>
+                <th>Before Img</th>
+                <th>After Img</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for data in tasks %}
+                <tr>
+                    <td class="column-data">{{data.task_name|checkIfNull}}</td>
+                    <td class="column-data" >{{data.task_description|checkIfNull}}</td>
+                    <td class="column-data" >{{data.start_time|checkIfNull}}</td>
+                    <td class="column-data">{{data.stop_time|checkIfNull}}</td>
+                    <td class="column-data">{{data.status|checkIfNull}}</td>
+                    <td class="column-data">{{data.odometerbefore|checkIfNull}}</td>
+                    <td class="column-data">{{data.odometerafter|checkIfNull}}</td>
+                    <td class="column-data">{{data.user.username|checkIfNull}}</td>
+                    <td class="column-data">{{data.createdat|checkIfNull}}</td>
+                    <td class="column-data">{{data.shelter_type.name|checkIfNull}}</td>
+                    <td class="column-data">
+                        {% if data.beforewash_task_img %}
+                        <img src="{{base64Imgs|getBase64:data.id}}" style="height: 70px; width:120px" alt="">
+                       
+                        {% endif %}
+                    </td>
+                    <td class="column-data">
+                        {% if data.afterwash_task_img %}
+                        <img src="{{base64AfterImgs|getBase64:data.id}}" style="height: 70px; width:120px" alt="">
+                        {% endif %}
+                        
+                    </td>
+                </tr>
+               
+               
+              
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>

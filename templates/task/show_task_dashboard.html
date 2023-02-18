@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+
+
+{% block title %}Show Task Dashboard{% endblock %}
+{% block content %}
+{% load managertags %}
+
+
+<form method="POST" action="/show_task_dashboard">
+
+	{% csrf_token %}
+	<label for="date_filter">Filter by Week and Month:</label>
+	{{ date_form.day }}
+	<button type="submit">Filter</button>
+</form>
+<h4 class="logo"><b>Displaying Results for Week of {{ week_start }}, Month of {{ month }}</b></h4>
+<br>
+<table class="table">
+	<thead class="thead-dark">
+		<tr>
+
+
+			<th>Task Name</th>
+	
+			<th>Avg Total Timestamp Duration</th>
+			<th>% of Total Work Time</th>
+			<th>Avg Weekly Timestamp Duration</th>
+			<th>% of Weekly Work Time</th>
+			<th>Avg Monthly Timestamp Duration</th>
+			<th>% of Monthly Work Time</th>
+			<th>Task User</th>
+
+		</tr>
+	</thead>
+	<tbody>
+		{% for task in tasks %}
+		<tr>
+			<td>{{ task.task_name }}</td>
+
+			<!-- Custom funtion for multi level dictionary accesses, see /tasks/templatetags/managertags.py for definition -->
+			<td>{% dict_get ts_total_avg task.id %} Minutes</td>
+			<td>{% dict_get ts_total_pct task.id %}%</td>
+			<td>{% dict_get ts_week_avg task.id %} Minutes</td>
+			<td>{% dict_get ts_week_pct task.id %}%</td>
+			<td>{% dict_get ts_month_avg task.id %} Minutes</td>
+			<td>{% dict_get ts_month_pct task.id %}%</td>
+			<td>{{ task.user.first_name }} {{ task.user.last_name }}</td>
+
+
+		</tr>
+		{% endfor %}
+	</tbody>
+</table>
+{% endblock %}
