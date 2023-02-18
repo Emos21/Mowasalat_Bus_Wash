@@ -131,8 +131,8 @@ class Task(models.Model):
     )
     begin_time = models.DateTimeField(blank=True, null=True)
     status = models.CharField(max_length=11, choices=STATUSES, default="in progress")
-    odometerbefore = models.IntegerField(null=True, blank=True)
-    odometerafter = models.IntegerField(null=True, blank=True)
+    # odometerbefore = models.IntegerField(null=True, blank=True)
+    # odometerafter = models.IntegerField(null=True, blank=True)
     user = models.ForeignKey(
         User,
         related_name="tasks_assigned",
@@ -148,9 +148,9 @@ class Task(models.Model):
     createdat = models.DateField(auto_now_add=True, null=True)
     updatedat = models.DateField(auto_now_add=True, null=True)
 
-    beforewash_task_img = models.FileField(
-        upload_to="Task_Complete/before/", null=True, blank=True
-    )
+    # beforewash_task_img = models.FileField(
+    #     upload_to="Task_Complete/before/", null=True, blank=True
+    # )
     afterwash_task_img = models.FileField(
         upload_to="Task_Complete/after/", null=True, blank=True
     )
@@ -166,12 +166,12 @@ class Task(models.Model):
 
     def save(self, *args, **kwargs):
         super(Task, self).save(*args, **kwargs)
-        if self.beforewash_task_img:
-            imag = Image.open(self.beforewash_task_img.path)
-            if imag.width > 200 or imag.height > 200:
-                output_size = (200, 200)
-                imag.thumbnail(output_size)
-                imag.save(self.beforewash_task_img.path)
+        # if self.beforewash_task_img:
+        #     imag = Image.open(self.beforewash_task_img.path)
+        #     if imag.width > 200 or imag.height > 200:
+        #         output_size = (200, 200)
+        #         imag.thumbnail(output_size)
+        #         imag.save(self.beforewash_task_img.path)
         
         if self.afterwash_task_img:
             imag = Image.open(self.afterwash_task_img.path)

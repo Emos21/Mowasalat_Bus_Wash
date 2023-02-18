@@ -22,49 +22,13 @@ Edit Task
   </div>
   <div class="card-body">
     <div class="row mb-4">
-      <div class="col-md-4">
-        <b class="text-muted"><i class="fa-sharp fa-solid fa-greater-than" style=" font-size: 10px !important;"></i><i
-            class="fa-sharp fa-solid fa-greater-than" style=" font-size: 10px !important;"></i> Initial Odometer Reading
-          : </b> {{task.odometerbefore|checkIfNull}}
-      </div>
-      <div class="col-md-4">
-        <b class="text-muted"><i class="fa-sharp fa-solid fa-greater-than" style=" font-size: 10px !important;"></i><i
-            class="fa-sharp fa-solid fa-greater-than" style=" font-size: 10px !important;"></i> Final Odometer Reading :
-        </b> {{task.odometerafter|checkIfNull}}
-      </div>
-      <div class="col-md-4">
-        <b class="text-muted"><i class="fa-sharp fa-solid fa-greater-than" style=" font-size: 10px !important;"></i><i
-            class="fa-sharp fa-solid fa-greater-than" style=" font-size: 10px !important;"></i> Total Reading : </b>
-        {{total_odo}}
 
-      </div>
       <div class="col-md-4">
         <b class="text-muted"><i class="fa-sharp fa-solid fa-greater-than" style=" font-size: 10px !important;"></i><i
           class="fa-sharp fa-solid fa-greater-than" style=" font-size: 10px !important;"></i> Shelter Type: </b>
           {{task.shelter_type.name|checkIfNull}}
       </div>
-      {% if task.beforewash_task_img %}
-        <div class="col-md-4">
-          <b class="text-muted"><i class="fa-sharp fa-solid fa-greater-than" style=" font-size: 10px !important;"></i><i
-            class="fa-sharp fa-solid fa-greater-than" style=" font-size: 10px !important;"></i> Site :
-        </b> {{task.site_id.site_code|checkIfNull}}
-        </div>
-        <div class="col-md-4">
-          <b class="text-muted"><i class="fa-sharp fa-solid fa-greater-than" style=" font-size: 10px !important;"></i><i
-            class="fa-sharp fa-solid fa-greater-than" style=" font-size: 10px !important;"></i> Location :
-        </b> {{task.site_id.location.name|checkIfNull}}
-        </div>
-        <div class="col-md-4">
-          <b class="text-muted"><i class="fa-sharp fa-solid fa-greater-than" style=" font-size: 10px !important;"></i><i
-            class="fa-sharp fa-solid fa-greater-than" style=" font-size: 10px !important;"></i> Before Wash Img :
-        </b> <a href="{{task.beforewash_task_img.url}}" target="_blank"><i class="fa-solid fa-download"></i></a>
-        </div>
-        <div class="col-md-4">
-          <b class="text-muted"><i class="fa-sharp fa-solid fa-greater-than" style=" font-size: 10px !important;"></i><i
-            class="fa-sharp fa-solid fa-greater-than" style=" font-size: 10px !important;"></i> Start Time :
-        </b> {{task.start_time}}
-        </div>
-      {% endif %}
+
       {% if task.afterwash_task_img %}
       <div class="col-md-4">
         <b class="text-muted"><i class="fa-sharp fa-solid fa-greater-than" style=" font-size: 10px !important;"></i><i
@@ -82,32 +46,24 @@ Edit Task
       <i class="fa-solid fa-circle-info fs-2"></i>
       <div class="" style="margin-left: 1% !important;">{{task.task_description}}</div>
     </div>
-    {% if task.odometerbefore %}
+<!-- 
     <h5> Site Map: </h5>
     <div class="mt-2 mb-3">
       <iframe
         src="{{ task.map_url }}"
         width="100%" height="450" style="border:0;" allowfullscreen="" loading="lazy"
         referrerpolicy="no-referrer-when-downgrade"></iframe>
-    </div>
+    </div> -->
 
-    {% if task.odometerafter and task.is_scanned == False %}
+    
     <button id="scanner-link-two" class="btn btn-sm btn-warning" data_url="{% url 'view-scanner-task' task.id %}" style="width: 100px;">
       <ion-icon name="scan-outline"></ion-icon>
       scan QR
     </button>
 
-    {% elif not task.odometerafter and task.is_scanned == False %}
-    <span class="btn btn-primary btn-sm" style="float: right !important;" data-toggle="modal"
-      data-target="#add-after-odo"><i class="fa-solid fa-plus"></i> Add Final Odometer</span>
-    {% endif %}
-    {% else %}
-    <span class="btn btn-outline-primary btn-sm" data-toggle="modal" data-target="#add-before-odo"><i
-        class="fa-solid fa-plus"></i> Add Initial Odometer</span>
-    {% endif %}
   </div>
 </div>
-{% if task.is_scanned and not task.beforewash_task_img %}
+
 
 
 <div>
@@ -127,11 +83,6 @@ Edit Task
       </select>
     </p>
   
-
-    <p>
-      <label for="id_beforewashimg">Beforewashing:</label>
-      <input type="file" name="beforewashing" accept="image/*" id="id_beforewashimg" required="">
-    </p>
 
     <div>
       <span class="btn btn-primary" id="add-damage">Add Damage</span>
@@ -176,7 +127,7 @@ Edit Task
   </form>
 </div>
 
-{% endif %}
+
 {% if task.is_scanned %}
 <div class="table-responsive mt-3">
   <h5>Damages: </h5>
@@ -208,7 +159,7 @@ Edit Task
 </div>
 {% endif %}
 
-{% if task.is_scanned and task.beforewash_task_img and not task.afterwash_task_img %}
+
 <form action="{% url 'maintainTask' %}" method="POST" enctype="multipart/form-data">
   {% csrf_token %}
   <p>
@@ -218,67 +169,8 @@ Edit Task
   <input type="hidden" name="task_id" value="{{task.id}}">
   <input type="submit" value="Submit" class="submit_add_btn">
 </form>
-{% endif %}
 
 
-
-<!-- <iframe src="{{ task.tasklocation }}" style="border:0;" allowfullscreen="" loading="lazy"
-  referrerpolicy="no-referrer-when-downgrade"></iframe> -->
-
-
-<div class="modal fade" id="add-before-odo" role="dialog">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <form action="{% url 'maintainOdoMeter' %}" method="post">
-        {% csrf_token %}
-        <div class="modal-body">
-
-          <div class="alert alert-primary p-2 d-flex">
-            <i class="fa-solid fa-exclamation fs-2"></i>
-            <div class="" style="margin-left: 3% !important;">Add Intial odometer below to access the site map to the
-              specified task!</div>
-          </div>
-          <div class="form-group">
-            <label for="" class="control-label">Intial Odometer Reading</label>
-            <input type="text" name="before_odo" class="form-control">
-            <input type="hidden" name="task_id" value="{{task.id}}">
-          </div>
-        </div>
-        <div class="modal-footer">
-          <button type="submit" class="btn btn-outline-primary btn-sm">Save</button>
-          <span class="btn btn-sm btn-default" data-dismiss="modal">Close</span>
-        </div>
-      </form>
-    </div>
-  </div>
-</div>
-
-<div class="modal fade" id="add-after-odo" role="dialog">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <form action="{% url 'maintainOdoMeter' %}" method="post">
-        {% csrf_token %}
-        <div class="modal-body">
-
-          <div class="alert alert-primary p-2 d-flex">
-            <i class="fa-solid fa-exclamation fs-2"></i>
-            <div class="" style="margin-left: 3% !important;">Add Final odometer reading below to activate the Scan
-              QRCode feature on the task!</div>
-          </div>
-          <div class="form-group">
-            <label for="" class="control-label">Final Odometer Reading</label>
-            <input type="text" name="after_odo" class="form-control">
-            <input type="hidden" name="task_id" value="{{task.id}}">
-          </div>
-        </div>
-        <div class="modal-footer">
-          <button type="submit" class="btn btn-outline-primary btn-sm">Save</button>
-          <span class="btn btn-sm btn-default" data-dismiss="modal">Close</span>
-        </div>
-      </form>
-    </div>
-  </div>
-</div>
 
 
 

@@ -311,11 +311,11 @@ def edit_task(request, id):
         if task.is_scanned
         else []
     )
-    total_odo = (
-        task.odometerafter - task.odometerbefore
-        if task.odometerbefore and task.odometerafter
-        else "-"
-    )
+    # total_odo = (
+    #     task.odometerafter - task.odometerbefore
+    #     if task.odometerbefore and task.odometerafter
+    #     else "-"
+    # )
 
     damages = Configurations.objects.filter(config_type='damages')
     damage_data = WorkDoneDamages.objects.filter(task_id = id)
@@ -324,7 +324,7 @@ def edit_task(request, id):
     return render(
         request,
         "task/edit_task.html",
-        {"task": task, "total_odo": total_odo, "type_wash": type_wash, "damages":damages,'damage_data':damage_data},
+        {"task": task, "type_wash": type_wash, "damages":damages,'damage_data':damage_data},
     )
 
 
@@ -365,27 +365,27 @@ def task_delete(request, id):
     return render(request, "task/delete_task.html", context)
 
 
-@login_required
-def maintainOdoMeter(request):
-    task = Task.objects.get(id=request.POST["task_id"])
-    if "before_odo" in request.POST:
-        task.odometerbefore = request.POST["before_odo"]
-    else:
-        if int(request.POST["after_odo"]) <= int(task.odometerbefore):
-            messages.info(request, "Invalid final odo readings")
-            return redirect(request.META["HTTP_REFERER"])
-        task.odometerafter = request.POST["after_odo"]
-    task.save()
+# @login_required
+# def maintainOdoMeter(request):
+#     task = Task.objects.get(id=request.POST["task_id"])
+#     if "before_odo" in request.POST:
+#         task.odometerbefore = request.POST["before_odo"]
+#     else:
+#         if int(request.POST["after_odo"]) <= int(task.odometerbefore):
+#             messages.info(request, "Invalid final odo readings")
+#             return redirect(request.META["HTTP_REFERER"])
+#         task.odometerafter = request.POST["after_odo"]
+#     task.save()
 
-    return redirect(request.META["HTTP_REFERER"])
+#     return redirect(request.META["HTTP_REFERER"])
 
 
 def maintainTask(request):
     task = Task.objects.get(id=request.POST["task_id"])
     if request.FILES:
-        if "beforewashing" in request.FILES:
-            task.beforewash_task_img = request.FILES["beforewashing"]
-            task.start_time = datetime.now()
+        # if "beforewashing" in request.FILES:
+        #     task.beforewash_task_img = request.FILES["beforewashing"]
+        #     task.start_time = datetime.now()
         if "afterwashing" in request.FILES:
             task.afterwash_task_img = request.FILES["afterwashing"]
             task.stop_time = datetime.now()
@@ -558,15 +558,15 @@ def html_to_pdf(request):
             b64_string = base64.b64encode(jpg_img[1]).decode('utf-8')
             base64AfterImgs[task.id] = f'data:image/{url_name[len(url_name)-1]};base64,{b64_string}'
             
-        if task.beforewash_task_img:
-            url_before = task.beforewash_task_img.url.split('.')
-            mimecode_before = f'.{url_before[len(url_before)-1]}'
-            beforeUrl = task.beforewash_task_img.url.split('/')
-            del beforeUrl[0]
-            img2 = cv2.imread('/'.join(beforeUrl))
-            jpg_img2 = cv2.imencode(mimecode_before, img2)
-            b64_string2 = base64.b64encode(jpg_img2[1]).decode('utf-8')
-            base64Imgs[task.id] = f'data:image/{url_before[len(url_before)-1]};base64,{b64_string2}'
+        # if task.beforewash_task_img:
+        #     url_before = task.beforewash_task_img.url.split('.')
+        #     mimecode_before = f'.{url_before[len(url_before)-1]}'
+        #     beforeUrl = task.beforewash_task_img.url.split('/')
+        #     del beforeUrl[0]
+        #     img2 = cv2.imread('/'.join(beforeUrl))
+        #     jpg_img2 = cv2.imencode(mimecode_before, img2)
+        #     b64_string2 = base64.b64encode(jpg_img2[1]).decode('utf-8')
+        #     base64Imgs[task.id] = f'data:image/{url_before[len(url_before)-1]};base64,{b64_string2}'
     context_dict = {
         "tasks": tasks,
         "logo" : getLogoBase64(),
