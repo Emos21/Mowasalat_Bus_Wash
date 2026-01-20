@@ -139,11 +139,11 @@
     background: rgba(0, 140, 255, 0.1);
 }
 
-/* Theme Toggle */
+/* Theme Toggle & Notification Button */
 .theme-btn {
-    background: transparent;
-    border: 2px solid #008cff;
-    border-radius: 50%;
+    background: transparent !important;
+    border: 2px solid #008cff !important;
+    border-radius: 50% !important;
     width: 40px;
     height: 40px;
     display: flex;
@@ -151,16 +151,24 @@
     justify-content: center;
     cursor: pointer;
     transition: all 0.3s ease;
+    padding: 0 !important;
 }
 .theme-btn ion-icon {
     font-size: 1.3rem;
     color: #008cff;
+    transition: color 0.3s ease;
 }
 .theme-btn:hover {
-    background: #008cff;
+    background: #008cff !important;
+    border-color: #008cff !important;
+    transform: scale(1.05);
 }
 .theme-btn:hover ion-icon {
-    color: white;
+    color: white !important;
+}
+.theme-btn:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(0, 140, 255, 0.3);
 }
 
 /* Language Switch */
@@ -284,11 +292,21 @@
 }
 
 [data-theme="dark"] .theme-btn {
-    border-color: #60a5fa;
+    border-color: #60a5fa !important;
+    background: transparent !important;
 }
 
 [data-theme="dark"] .theme-btn ion-icon {
     color: #fbbf24;
+}
+
+[data-theme="dark"] .theme-btn:hover {
+    background: #60a5fa !important;
+    border-color: #60a5fa !important;
+}
+
+[data-theme="dark"] .theme-btn:hover ion-icon {
+    color: #1a1a2e !important;
 }
 
 [data-theme="dark"] #content_container {

@@ -200,6 +200,65 @@
     [data-theme="dark"] .progress-container {
         background: var(--border-color);
     }
+
+    /* Responsive styles */
+    @media (max-width: 991px) {
+        .row > .col-md-6 {
+            width: 100%;
+            margin-bottom: 20px;
+        }
+    }
+
+    @media (max-width: 767px) {
+        .summary-cards {
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+        .summary-card {
+            padding: 15px 10px;
+        }
+        .summary-card .value {
+            font-size: 1.5rem;
+        }
+        .summary-card .label {
+            font-size: 0.8rem;
+        }
+        .worker-card {
+            flex-direction: column;
+            text-align: center;
+            gap: 10px;
+        }
+        .worker-rank {
+            margin-right: 0;
+        }
+        .worker-rate {
+            text-align: center;
+        }
+        .location-grid {
+            grid-template-columns: 1fr;
+        }
+        .chart-container {
+            height: 220px;
+        }
+        .section-title {
+            font-size: 1rem;
+        }
+        .performance-section {
+            padding: 15px;
+        }
+    }
+
+    @media (max-width: 479px) {
+        .summary-cards {
+            grid-template-columns: 1fr;
+        }
+        .summary-card .value {
+            font-size: 1.3rem;
+        }
+        .chart-container {
+            height: 180px;
+        }
+    }
 </style>
 
 <main>
