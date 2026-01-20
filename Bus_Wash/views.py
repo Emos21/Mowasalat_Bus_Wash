@@ -667,3 +667,142 @@ def export_to_excel(request):
     return response
 
 
+# ==================== SCHEDULING SYSTEM ====================
+
+def schedule_list(request):
+    """List all scheduled tasks"""
+    schedules = ScheduledTask.objects.all().select_related('site', 'assigned_user', 'shelter_type')
+    context = {
+        'schedules': schedules,
+        'page_title': 'Scheduled Tasks'
+    }
+    return render(request, 'scheduling/schedule_list.html', context)
+
+
+def add_schedule(request):
+    """Add a new scheduled task"""
+    if request.method == 'POST':
+        try:
+            schedule = ScheduledTask(
+                name=request.POST.get('name'),
+                description=request.POST.get('description', ''),
+                site_id=request.POST.get('site'),
+                shelter_type_id=request.POST.get('shelter_type') if request.POST.get('shelter_type') else None,
+                assigned_user_id=request.POST.get('assigned_user') if request.POST.get('assigned_user') else None,
+                frequency=request.POST.get('frequency'),
+                is_active=True
+            )
+            # Calculate next run based on frequency
+            now = timezone.now()
+            if schedule.frequency == 'daily':
+                schedule.next_run = now + timedelta(days=1)
+            elif schedule.frequency == 'weekly':
+                schedule.next_run = now + timedelta(weeks=1)
+            elif schedule.frequency == 'monthly':
+                schedule.next_run = now + timedelta(days=30)
+            schedule.save()
+            messages.success(request, 'Scheduled task created successfully!')
+            return redirect('schedule_list')
+        except Exception as e:
+            messages.error(request, f'Error creating schedule: {str(e)}')
+
+    sites = Site.objects.all()
+    users = User.objects.filter(is_active=True)
+    shelter_types = Configurations.objects.filter(config_type='shelter_type')
+    context = {
+        'sites': sites,
+        'users': users,
+        'shelter_types': shelter_types,
+        'page_title': 'Add Scheduled Task'
+    }
+    return render(request, 'scheduling/schedule_form.html', context)
+
+
+def edit_schedule(request, pk):
+    """Edit an existing scheduled task"""
+    schedule = get_object_or_404(ScheduledTask, pk=pk)
+
+    if request.method == 'POST':
+        try:
+            schedule.name = request.POST.get('name')
+            schedule.description = request.POST.get('description', '')
+            schedule.site_id = request.POST.get('site')
+            schedule.shelter_type_id = request.POST.get('shelter_type') if request.POST.get('shelter_type') else None
+            schedule.assigned_user_id = request.POST.get('assigned_user') if request.POST.get('assigned_user') else None
+            schedule.frequency = request.POST.get('frequency')
+
+            # Recalculate next run if frequency changed
+            now = timezone.now()
+            if schedule.frequency == 'daily':
+                schedule.next_run = now + timedelta(days=1)
+            elif schedule.frequency == 'weekly':
+                schedule.next_run = now + timedelta(weeks=1)
+            elif schedule.frequency == 'monthly':
+                schedule.next_run = now + timedelta(days=30)
+
+            schedule.save()
+            messages.success(request, 'Scheduled task updated successfully!')
+            return redirect('schedule_list')
+        except Exception as e:
+            messages.error(request, f'Error updating schedule: {str(e)}')
+
+    sites = Site.objects.all()
+    users = User.objects.filter(is_active=True)
+    shelter_types = Configurations.objects.filter(config_type='shelter_type')
+    context = {
+        'schedule': schedule,
+        'sites': sites,
+        'users': users,
+        'shelter_types': shelter_types,
+        'page_title': 'Edit Scheduled Task'
+    }
+    return render(request, 'scheduling/schedule_form.html', context)
+
+
+def delete_schedule(request, pk):
+    """Delete a scheduled task"""
+    schedule = get_object_or_404(ScheduledTask, pk=pk)
+    if request.method == 'POST':
+        schedule.delete()
+        messages.success(request, 'Scheduled task deleted successfully!')
+    return redirect('schedule_list')
+
+
+def toggle_schedule(request, pk):
+    """Toggle a scheduled task active/inactive"""
+    schedule = get_object_or_404(ScheduledTask, pk=pk)
+    schedule.is_active = not schedule.is_active
+    schedule.save()
+    status = 'activated' if schedule.is_active else 'deactivated'
+    messages.success(request, f'Scheduled task {status} successfully!')
+    return redirect('schedule_list')
+
+
+def run_schedule_now(request, pk):
+    """Manually run a scheduled task immediately"""
+    schedule = get_object_or_404(ScheduledTask, pk=pk)
+
+    try:
+        # Create a new task from the schedule
+        task = Task(
+            task_name=schedule.name,
+            task_description=f"[Scheduled] {schedule.description}",
+            site_id=schedule.site,
+            shelter_type=schedule.shelter_type,
+            user=schedule.assigned_user,
+            status='in progress',
+            createdat=timezone.now()
+        )
+        task.save()
+
+        # Update schedule last_generated
+        schedule.last_generated = timezone.now()
+        schedule.save()
+
+        messages.success(request, f'Task "{schedule.name}" created successfully from schedule!')
+    except Exception as e:
+        messages.error(request, f'Error running schedule: {str(e)}')
+
+    return redirect('schedule_list')
+
+

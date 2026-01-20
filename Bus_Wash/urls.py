@@ -64,6 +64,14 @@ urlpatterns = [
     path('html_to_pdf',html_to_pdf,name="html_to_pdf"),
     path('export_to_excel', views.export_to_excel, name="export_to_excel"),
 
+    # Scheduling System
+    path('schedules/', views.schedule_list, name='schedule_list'),
+    path('schedules/add/', views.add_schedule, name='add_schedule'),
+    path('schedules/edit/<int:pk>/', views.edit_schedule, name='edit_schedule'),
+    path('schedules/delete/<int:pk>/', views.delete_schedule, name='delete_schedule'),
+    path('schedules/toggle/<int:pk>/', views.toggle_schedule, name='toggle_schedule'),
+    path('schedules/run/<int:pk>/', views.run_schedule_now, name='run_schedule_now'),
+
 ] 
 
 if settings.DEBUG == True:

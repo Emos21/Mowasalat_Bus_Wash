@@ -1,0 +1,231 @@
+{% extends "base.html" %}
+
+{% load static %}
+{% block content %}
+
+<style>
+    .form-container {
+        max-width: 700px;
+        margin: 0 auto;
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 2px 15px rgba(0, 0, 0, 0.08);
+        padding: 30px;
+    }
+    .form-header {
+        text-align: center;
+        margin-bottom: 30px;
+        padding-bottom: 20px;
+        border-bottom: 1px solid #e9ecef;
+    }
+    .form-header h4 {
+        font-weight: 700;
+        color: #333;
+        margin-bottom: 5px;
+    }
+    .form-header p {
+        color: #6c757d;
+        margin: 0;
+    }
+    .form-group label {
+        font-weight: 600;
+        color: #495057;
+        margin-bottom: 8px;
+    }
+    .form-group label .required {
+        color: #dc3545;
+    }
+    .form-control {
+        border-radius: 8px;
+        border: 1px solid #dee2e6;
+        padding: 10px 15px;
+        transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .form-control:focus {
+        border-color: #008cff;
+        box-shadow: 0 0 0 3px rgba(0, 140, 255, 0.1);
+    }
+    .form-control::placeholder {
+        color: #adb5bd;
+    }
+    .btn-submit {
+        background: #008cff;
+        border: none;
+        padding: 12px 30px;
+        font-weight: 600;
+        border-radius: 8px;
+        transition: background 0.2s;
+    }
+    .btn-submit:hover {
+        background: #0077d9;
+    }
+    .btn-cancel {
+        padding: 12px 30px;
+        font-weight: 600;
+        border-radius: 8px;
+    }
+    .frequency-options {
+        display: flex;
+        gap: 15px;
+        flex-wrap: wrap;
+    }
+    .frequency-option {
+        flex: 1;
+        min-width: 150px;
+    }
+    .frequency-option input[type="radio"] {
+        display: none;
+    }
+    .frequency-option label {
+        display: block;
+        padding: 15px;
+        text-align: center;
+        border: 2px solid #dee2e6;
+        border-radius: 10px;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+    .frequency-option label:hover {
+        border-color: #008cff;
+    }
+    .frequency-option input[type="radio"]:checked + label {
+        border-color: #008cff;
+        background: rgba(0, 140, 255, 0.05);
+    }
+    .frequency-option label ion-icon {
+        font-size: 24px;
+        display: block;
+        margin-bottom: 8px;
+        color: #008cff;
+    }
+    .frequency-option label span {
+        font-weight: 600;
+    }
+
+    /* Dark mode */
+    [data-theme="dark"] .form-container {
+        background: var(--bg-card);
+    }
+    [data-theme="dark"] .form-header h4 {
+        color: var(--text-primary);
+    }
+    [data-theme="dark"] .form-group label {
+        color: var(--text-secondary);
+    }
+    [data-theme="dark"] .frequency-option label {
+        border-color: var(--border-color);
+        background: var(--bg-secondary);
+        color: var(--text-primary);
+    }
+</style>
+
+<main>
+    <div class="form-container">
+        <div class="form-header">
+            <h4>{% if schedule %}Edit Scheduled Task{% else %}Create Scheduled Task{% endif %}</h4>
+            <p>{% if schedule %}Update the schedule details below{% else %}Set up automated task creation{% endif %}</p>
+        </div>
+
+        {% if messages %}
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        {% endfor %}
+        {% endif %}
+
+        <form method="post">
+            {% csrf_token %}
+
+            <div class="form-group mb-4">
+                <label for="name">Schedule Name <span class="required">*</span></label>
+                <input type="text" class="form-control" id="name" name="name"
+                       value="{{ schedule.name|default:'' }}" placeholder="e.g., Weekly West Bay Wash" required>
+            </div>
+
+            <div class="form-group mb-4">
+                <label for="description">Description</label>
+                <textarea class="form-control" id="description" name="description" rows="3"
+                          placeholder="Optional description of this scheduled task">{{ schedule.description|default:'' }}</textarea>
+            </div>
+
+            <div class="form-group mb-4">
+                <label for="site">Site <span class="required">*</span></label>
+                <select class="form-control" id="site" name="site" required>
+                    <option value="">Select a site...</option>
+                    {% for site in sites %}
+                    <option value="{{ site.id }}" {% if schedule.site.id == site.id %}selected{% endif %}>
+                        {{ site.site_code }} - {{ site.location.name|default:"Unknown Location" }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-group mb-4">
+                <label for="shelter_type">Shelter Type</label>
+                <select class="form-control" id="shelter_type" name="shelter_type">
+                    <option value="">Any shelter type</option>
+                    {% for type in shelter_types %}
+                    <option value="{{ type.id }}" {% if schedule.shelter_type.id == type.id %}selected{% endif %}>
+                        {{ type.name }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-group mb-4">
+                <label for="assigned_user">Assign To</label>
+                <select class="form-control" id="assigned_user" name="assigned_user">
+                    <option value="">Unassigned (assign later)</option>
+                    {% for user in users %}
+                    <option value="{{ user.id }}" {% if schedule.assigned_user.id == user.id %}selected{% endif %}>
+                        {{ user.username }} {% if user.first_name %}({{ user.first_name }} {{ user.last_name }}){% endif %}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-group mb-4">
+                <label>Frequency <span class="required">*</span></label>
+                <div class="frequency-options">
+                    <div class="frequency-option">
+                        <input type="radio" name="frequency" value="daily" id="freq-daily"
+                               {% if schedule.frequency == 'daily' or not schedule %}checked{% endif %}>
+                        <label for="freq-daily">
+                            <ion-icon name="today-outline"></ion-icon>
+                            <span>Daily</span>
+                        </label>
+                    </div>
+                    <div class="frequency-option">
+                        <input type="radio" name="frequency" value="weekly" id="freq-weekly"
+                               {% if schedule.frequency == 'weekly' %}checked{% endif %}>
+                        <label for="freq-weekly">
+                            <ion-icon name="calendar-outline"></ion-icon>
+                            <span>Weekly</span>
+                        </label>
+                    </div>
+                    <div class="frequency-option">
+                        <input type="radio" name="frequency" value="monthly" id="freq-monthly"
+                               {% if schedule.frequency == 'monthly' %}checked{% endif %}>
+                        <label for="freq-monthly">
+                            <ion-icon name="calendar-number-outline"></ion-icon>
+                            <span>Monthly</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group text-right mt-5">
+                <a href="{% url 'schedule_list' %}" class="btn btn-secondary btn-cancel mr-2">Cancel</a>
+                <button type="submit" class="btn btn-primary btn-submit">
+                    {% if schedule %}Update Schedule{% else %}Create Schedule{% endif %}
+                </button>
+            </div>
+        </form>
+    </div>
+</main>
+
+{% endblock %}
