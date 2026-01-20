@@ -1,0 +1,120 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}
+Work Done
+{% endblock title %}
+
+{% block content %}
+{% if user.is_authenticated %}
+
+<style>
+    
+</style>
+
+
+<div class="work_done_mission_view">
+
+    <div class="row" id="work_done_mission_row">
+        {% for work in workdone %}
+        <div class="col-md-3">
+            <div id="work_done_card">
+                <div id="work_site_wd">
+                    <h3>{{ work.site_id.site_code }}</h3>
+                    <div id="work_date_holder">
+                        <p id="date_no">{{ work.date_created|date:"j" }}<span>{{ work.date_created|date:"S" }}</span>
+                        </p>
+                        <span id="month_name">{{ work.date_created|date:"M" }}</span>
+                    </div>
+                </div>
+                <div id="work_done_card_body">
+                    <div id="work_done_runners">
+                        <span><i class="fa-regular fa-user"></i> maze</span>
+                        <span id="span_wrk_vw"><i class="fa-regular fa-clock"></i> 45 min</span>
+                    </div>
+                    <h2>Al Kharaitiyat/Izghawa/Umm Slal/Umm Al Amad/Umm Obairiya</h2>
+                    <!-- <h2>Al Kharaitiyat</h2> -->
+                    <div id="wrk_dn_ft_btns">
+                        {% if not work.stop_time %}
+                        <span class="pulse" data-code="{{work.site_id.site_code}}" data-record="{{work.id}}"
+                            data-toggle="modal" data-target="#stop-work">
+                            <i class="fa-solid fa-hand" data-toggle="tooltip" title="Stop Time"></i>
+                        </span>
+                        {% endif %}
+                        <a href="{% url 'person_detail' work.pk%}" id="view_wrk_dn">View <i
+                                class="fa-regular fa-eye"></i></a>
+                    </div>
+                </div>
+            </div>
+
+
+        </div>
+        {% endfor %}
+    </div>
+    {% if not workdone %}
+    <p>No work records.</p>
+    {% endif %}
+
+
+</div>
+
+<div class="modal fade" id="stop-work" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form action="{% url 'stopWorkDone' %}" method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="modal-body">
+
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-outline-primary btn-sm">Yes, Stop</button>
+                    <span class="btn btn-default btn-sm" data-dismiss="modal">Cancel</span>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<script>
+    $(() => {
+        let stopTaskBody = (work, site_code) => {
+            var body = $(`
+            <div class="alert alert-primary p-2 d-flex">
+                <i class="fa-solid fa-circle-info"></i>
+                <span class="p-2">Confirm you want to stop ${site_code} work</span>
+            </div>
+            <p>
+                <label for="id_beforewashimg">AfterWashing:</label>
+                <input type="file" name="afterwashing" accept="image/*" id="id_beforewashimg">
+            </p>
+            <input type="hidden" name="work_id" value="${work}">
+            `).clone()
+            return body;
+        }
+        $('#stop-work').on('show.bs.modal', (e) => {
+            var data = $(e.relatedTarget).data('record');
+            var code = $(e.relatedTarget).data('code');
+            console.log(code)
+            var body = stopTaskBody(data, code);
+            $('#stop-work').find('.modal-body').empty();
+            $('#stop-work').find('.modal-body').append(body);
+
+        })
+    })
+
+
+
+    const a = 10;
+    const b = -20;
+
+    const difference = a > b ? a - b : b - a;
+
+    console.log(difference);
+</script>
+
+
+
+
+{% else %}
+login first
+{% endif %}
+{% endblock content %}

@@ -1,0 +1,598 @@
+/* ==== work done ==== */
+/* === Work Done Card === */
+
+#work_done_card {
+    position: relative;
+    width: 100%;
+    height: 45vh;
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
+    transition: all 0.3s cubic-bezier(.25, .8, .25, 1);
+    border-radius: 10px;
+    overflow: hidden;
+    transition: 0.3s ease-in;
+}
+
+#work_done_card:hover {
+    box-shadow: 0 14px 28px rgba(0, 0, 0, 0.25), 0 10px 10px rgba(0, 0, 0, 0.22);
+}
+
+#work_site_wd {
+    position: relative;
+    width: 100%;
+    height: 15vh;
+    background-color: #fff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
+}
+
+#work_done_card_body {
+    padding: 20px 20px;
+    position: absolute;
+    height: 100%;
+    width: 100%;
+}
+
+#work_date_holder {
+    position: absolute;
+    background-color: #fff;
+    line-height: 0.9;
+    bottom: -30%;
+    padding: 10px 15px;
+    right: 5%;
+    border-radius: 3px;
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
+}
+
+#work_date_holder p {
+    font-size: 20px;
+    font-weight: bolder;
+}
+
+#work_date_holder p span {
+    position: absolute;
+    font-size: 12px;
+}
+
+#work_done_runners {
+    padding: 10px 0px;
+    font-size: 14px;
+}
+
+#work_done_runners #span_wrk_vw {
+    margin: 0px 10px;
+}
+
+#work_done_card_body h2 {
+    font-size: 13px;
+    font-weight: light;
+}
+
+#wrk_dn_ft_btns {
+    position: absolute;
+    display: flex;
+    bottom: 40%;
+    width: 100%;
+}
+
+#view_wrk_dn {
+    position: absolute;
+    float: right;
+    background-color: #1d7fba;
+    color: #fff;
+    padding: 5px 15px;
+    border-radius: 50px;
+    border: 1px solid #1d7fba;
+    transition: .3s ease-in;
+    bottom: 0;
+}
+
+#view_wrk_dn:hover {
+    border: 1px solid #1d7fba;
+    background-color: transparent;
+    color: #000;
+}
+
+.pulse {
+    height: 40px;
+    width: 40px;
+    background: linear-gradient(var(--pulse2), var(--pulse3));
+    position: absolute;
+    margin: auto;
+    right: 15%;
+    bottom: 0;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    font-size: 18px;
+    color: #fff;
+    cursor: pointer;
+}
+
+.pulse:before,
+.pulse:after {
+    content: "";
+    position: absolute;
+    height: 100%;
+    width: 100%;
+    background-color: var(--pulse2);
+    border-radius: 50%;
+    z-index: -1;
+    opacity: 0.7;
+}
+
+.pulse:before {
+    animation: pulse 2s ease-in-out infinite;
+}
+
+.pulse:after {
+    animation: pulse 2s is ease-out infinite;
+}
+
+@keyframes pulse {
+    100% {
+        transform: scale(1.5);
+        opacity: 0;
+    }
+}
+
+#work_done_mission_row .col-md-3 {
+    margin-bottom: 5%;
+}
+
+/* ========== */
+
+.total_count_bus_wash {
+    width: 40%;
+    height: 25vh;
+}
+
+.total_count_bus_wash_card {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+}
+
+.total_count_bus_wash_card_body {
+    width: 80%;
+    height: 80%;
+    padding: 5%;
+    border-radius: 5px;
+    box-shadow: 0 1px 20px 0px rgba(0, 0, 0, 0.336);
+    text-align: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.no_of_bus_washed {
+    font-size: 3rem;
+    font-weight: 500;
+}
+
+.total_count_bus_wash_card_body span {
+    font-size: 18px;
+    color: var(--white);
+}
+
+.modal-sub-footer {
+    display: flex;
+    flex-wrap: wrap;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: flex-end;
+    padding: 0.75rem;
+    border-top: 1px solid #dee2e6;
+    border-bottom-right-radius: calc(0.3rem - 1px);
+    border-bottom-left-radius: calc(0.3rem - 1px);
+}
+
+#dash_top_cards {
+    background-color: #ffffff;
+    width: 100%;
+    height: 20vh;
+    border-radius: 3px;
+    position: relative;
+    /* display: flex; */
+    justify-content: center;
+    align-items: center;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.062), 0 1px 2px rgba(0, 0, 0, 0.048);
+    z-index: 100;
+}
+
+
+
+.bottom_card_sec {
+    background-color: #fff;
+    height: 50vh;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.062), 0 1px 2px rgba(0, 0, 0, 0.048);
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#dash_section_b {
+    margin-top: 5%;
+}
+
+#dropdown_menu_item .dropdown-item {
+    font-size: 14px;
+    text-transform: capitalize;
+    color: black;
+}
+
+
+#task_icons {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#task_icons button:hover {
+    color: #61A4F2;
+}
+
+#task_icons a {
+    color: #000;
+}
+
+#task_icons a:hover {
+    color: #61A4F2;
+}
+
+#task_sandels {
+    margin-top: 5%;
+    display: flex;
+}
+
+#task_sandels select {
+    border: none;
+    padding: 10px 0px;
+}
+
+#add_task_btn {
+    border: none;
+    outline: none;
+    padding: 8px 20px;
+    border-radius: 50px;
+    background-color: #1e84c0;
+    color: white;
+    transition: transform .2s;
+    margin-top: 5%;
+
+}
+
+#add_task_btn:hover {
+    transform: scale(1.03);
+}
+
+
+
+#prof_img_container {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#prof_img_holder {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    overflow: hidden;
+
+}
+
+#prof_img_holder img {
+    width: 100%;
+    height: 100%;
+}
+
+#task_card {
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.096);
+    width: 100%;
+    text-align: center;
+    padding: 20px 0px;
+    /* background-color: #007bff; */
+}
+
+#task_card_body {
+    /* height: 20vh; */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 30px;
+}
+
+#task_card_body p {
+    line-height: 15px;
+}
+
+
+#btn_c_nav {
+    float: right;
+    margin-right: 45px;
+    font-size: 20px;
+}
+
+.total,
+.pending {
+    position: absolute;
+    border-radius: 50%;
+    font-size: 13px;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    justify-content: center;
+    margin-top: -32px;
+}
+
+.total {
+    margin-left: 14px;
+    background-color: #007bff;
+}
+
+.pending {
+    margin-left: 14px;
+    background-color: red;
+}
+
+#mydonutChart {
+    width: 100 !important;
+    height: 100% !important;
+}
+
+#myChart {
+    width: 100% !important;
+    height: 100% !important;
+
+}
+
+#mydonutChart canvas {
+    width: auto !important;
+    background-color: yellow !important;
+}
+
+#user_task_img {
+    width: 100%;
+    /* background-color: red; */
+}
+
+#task_card_body button {
+    border: none;
+    outline: none;
+    background-color: transparent;
+    padding: 5px 20px;
+}
+
+#stop_watch_btn {
+    padding: 10px 20px;
+    border-radius: 50px;
+    border: 1px solid #1f89c6 !important;
+    transition: .3s ease-in;
+}
+
+#stop_watch_btn:hover {
+    background-color: #1f89c6;
+    color: #fff;
+}
+
+#task_title {
+    font-weight: 550;
+}
+
+#task_time {
+    font-size: 12px;
+}
+
+#id_status {
+    border: none;
+    outline: none;
+}
+
+#upload_container_form {
+    width: 100%;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#upload_form {
+    padding: 20px 20px;
+    border-radius: 10px;
+    box-shadow: 0 2px 22px 0 rgba(0, 0, 0, 0.1), 0 4px 20px 0 rgba(0, 0, 0, 0.15);
+}
+
+#id_name {
+    border-color: #2b3553;
+    border-radius: 0.4285rem;
+    font-size: 0.75rem;
+    padding: 10px 10px;
+    width: 100%;
+}
+
+#id_location {
+    border-color: #2b3553;
+    border-radius: 0.4285rem;
+    font-size: 0.75rem;
+    padding: 10px 10px;
+    width: 100%;
+}
+
+#id_typeofwash {
+    border-color: #2b3553;
+    border-radius: 0.4285rem;
+    font-size: 0.75rem;
+    padding: 10px 10px;
+    width: 100%;
+}
+
+
+#id_date_washed {
+    border-color: #2b3553;
+    border-radius: 0.4285rem;
+    font-size: 0.75rem;
+    padding: 10px 10px;
+    width: 100%;
+}
+
+.submit_add_btn {
+    margin-top: 5%;
+    padding: 10px 60px;
+    background-color: #127cc7;
+    color: white;
+    border-radius: 20px;
+    border: none;
+}
+
+/* ===========  MOBILE VIEW  =========== */
+/* ========  768  ========*/
+@media only screen and (max-width: 768px) {}
+
+/* ========  540  ========*/
+@media only screen and (max-width: 540px) {}
+
+/* ========  IphoneXR 414  ========*/
+@media only screen and (max-width: 414px) {
+    /* login */
+
+
+    /* dashboard */
+    #dash_top_row_cards {
+        margin-bottom: 25px;
+    }
+
+    #dash_top_col_cards {
+        margin-bottom: 20px;
+    }
+
+    #dash_section_b .col-md-3 {
+        margin-top: 20px;
+    }
+
+    /* task */
+    .work_done_date_slot {
+        width: 40%;
+    }
+}
+
+/* 
+.work_done_card_flex {
+    display: flex;
+    height: 15vh;
+
+*/
+
+@media only screen and (max-width: 600px) {
+    #panch {
+        color: black !important;
+        background-color: black !important;
+    }
+
+    #dash_top_cards {
+        margin-bottom: 60px;
+    }
+}
+
+/* ========  Samsung Galaxy s20 412  ========*/
+@media only screen and (max-width: 412px) {}
+
+/* ========  Iphone12 393  ========*/
+@media only screen and (max-width: 393px) {}
+
+/* ========  IphoneSE 375  ========*/
+@media only screen and (max-width: 375px) {}
+
+/* ========  Samsung Galaxy8 360  ========*/
+@media only screen and (max-width: 360px) {}
+
+/* ======== Galaxy Fold 280  ========*/
+@media only screen and (max-width: 280px) {}
+
+/* ===========DJANGO DASH BOARD ===========*/
+#branding {
+    background-color: red !important;
+}
+
+
+#location_logo {
+    position: relative;
+    top: 10%;
+    padding-top: 10%;
+    width: 100%;
+}
+
+#location_logo i {
+    font-size: 2rem;
+    color: #fff;
+    margin-left: 10%;
+}
+
+#location_card {
+    width: 180px;
+    height: 195px;
+    background: linear-gradient(180deg, #61A4F2 0%, rgba(1, 51, 97, 0.76) 100%);
+    border-radius: 12px;
+    position: relative;
+    cursor: pointer;
+    overflow: hidden;
+}
+
+#location_card_body {
+    color: white;
+    position: relative;
+    left: 10%;
+    padding-top: 30%;
+}
+
+
+#location_body_footer p {
+    color: #fff !important;
+    font-size: 1.3rem;
+    font-style: capitalize;
+}
+
+#location_body_footer span {
+    font-size: 13px;
+}
+
+#location_body_footer span i {
+    margin-left: 5%;
+}
+
+
+#odd_upp {
+    padding: 8px 35px;
+    border: none;
+    background-color: #1a73ac;
+    border-radius: 50px;
+    color: white;
+}
+
+#odd_upp icon {
+    color: white !important;
+}
+
+
+#wash_data_card_img img {
+    width: 100px !important;
+    height: 100px !important;
+    /* display: none; */
+}
+
+.bottom_card_sec #mydonutChart {
+    width: 250px !important;
+    height: 250px !important;
+}
+
+#month_graph {
+    width: 100%;
+    height: 100%;
+    padding: 10px 10px;
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
+}

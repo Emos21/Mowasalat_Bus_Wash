@@ -1,0 +1,90 @@
+<div class="navigation">
+
+    <ul>
+
+        <div id="aamal_logo">
+            <a href="{% url 'home' %}">
+                <img src="/static/assets/aamal_logo_white.png" alt="">
+                Mowasalat Bus Wash
+            </a>
+        </div>
+
+        <li>
+            <a href="{% url 'home' %}">
+                <span class="icon">
+                    <ion-icon name="home-outline"></ion-icon>
+                </span>
+                <span class="title" data-translate="Dashboard">Dashboard</span>
+            </a>
+        </li>
+
+        <li>
+            <a href="{% url 'show_tasks' %}">
+                <span class="icon">
+                    <ion-icon name="clipboard-outline"></ion-icon>
+                </span>
+                <span class="title" data-translate="Tasks">Tasks</span>
+            </a>
+        </li>
+
+        <li>
+            <a href="{% url 'add_task' %}">
+                <span class="icon">
+                    <ion-icon name="add-circle-outline"></ion-icon>
+                </span>
+                <span class="title" data-translate="Add Task">Add Task</span>
+            </a>
+        </li>
+
+        <li>
+            <a href="/site_list">
+                <span class="icon">
+                    <ion-icon name="location-outline"></ion-icon>
+                </span>
+                <span class="title" data-translate="Sites">Sites</span>
+            </a>
+        </li>
+
+        <li>
+            <a href="{% url 'view-scanner' %}">
+                <span class="icon">
+                    <ion-icon name="qr-code-outline"></ion-icon>
+                </span>
+                <span class="title" data-translate="Scanner">Scanner</span>
+            </a>
+        </li>
+
+        <li>
+            <a href="{% url 'reportIndex' %}">
+                <span class="icon">
+                    <ion-icon name="document-text-outline"></ion-icon>
+                </span>
+                <span class="title" data-translate="Reports">Reports</span>
+            </a>
+        </li>
+
+        <li>
+            <a href="{% url 'logout' %}">
+                <span class="icon">
+                    <ion-icon name="log-out-outline"></ion-icon>
+                </span>
+                <span class="title" data-translate="Logout">Logout</span>
+            </a>
+        </li>
+    </ul>
+</div>
+
+
+<script>
+    $(function () {
+        $('#topNav .nav-link').each(function () {
+            var current = '{{ request.get_full_path | urlencode }}'
+            if (current == $(this).attr('href')) {
+                $(this).parent().addClass('active')
+            }
+        })
+        $('#scanner-link').click(function () {
+            uni_modal("Shelter scan", $(this).attr('data_url'))
+        })
+    })
+</script>

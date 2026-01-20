@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+
+{% block title %}Add Task{% endblock %}
+{% block content %}
+
+
+<section style="width:100%; height:100vh; display: flex; justify-content: center; align-items: center;">
+  <div id="upload_task_form">
+
+    <form method="POST" action="/add_task">
+      {% csrf_token %}
+
+      <div class="input-wrapper">
+        <input type="text" name="task_name" maxlength="100" required="" id="id_task_name" class="form_input">
+        <label id="form_label">Task Name:</label>
+      </div>
+
+      <div class="input-wrapper">
+        <textarea name="task_description" required="" id="id_task_description" class="form_input"></textarea>
+        <label id="form_label">Task Description:</label>
+      </div>
+
+      <div class="input-wrapper">
+        <input type="url" name="map_url" maxlength="10000" required id="id_map_url">
+        <label for="id_map_url">Location </label>
+      </div>
+
+      <div class="input-wrapper">
+        <label for="id_user">Assigned to</label>
+        <select name="user" id="id_user">
+          <option value="" selected="">---------</option>
+
+          {% for user in users %}
+          <option value="{{user.id}}">{{user.username}}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="input-wrapper">
+        <label for="id_shelter_type">Shelter Type</label>
+        <select name="shelter_type" id="id_shelter_type">
+          <option value="" selected="">---------</option>
+
+          {% for shelter_type in shelter_types %}
+          <option value="{{shelter_type.id}}">{{shelter_type.name}}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      
+
+      <style>
+        button {
+          display: flex;
+          justify-content: center;
+        }
+
+        button .ion_icon {
+          color: black;
+        }
+      </style>
+
+
+      <button type="submit" id="add_task_btn">
+        <ion-icon name="add-outline" class="ion_icon"></ion-icon>
+      </button>
+    </form>
+  </div>
+
+</section>
+
+
+
+
+{% endblock %}

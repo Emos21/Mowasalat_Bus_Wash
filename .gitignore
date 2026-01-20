@@ -1,0 +1,42 @@
+# Environment and secrets
+.env
+.env.local
+.env.production
+*.pem
+secrets.json
+
+# Claude AI files
+CLAUDE.md
+
+# Python
+*.pyc
+__pycache__/
+*.pyo
+*.pyd
+.Python
+venv/
+env/
+.venv/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Database
+*.sqlite3
+db.sqlite3
+
+# Media uploads (optional - remove if you want to track)
+media/
+
+# Static files (collected)
+staticfiles/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log

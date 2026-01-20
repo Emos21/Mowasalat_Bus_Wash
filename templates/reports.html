@@ -1,0 +1,207 @@
+{% extends "base.html" %}
+
+{% load customfilter %}
+
+{% load static %}
+{% block content %}
+
+<link rel="stylesheet" href="https://cdn.datatables.net/select/1.5.0/css/select.dataTables.min.css">
+<link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.3.2/css/buttons.dataTables.min.css">
+<style>
+    .buttons-pdf{
+        display: none !important;
+    }
+    .hidden{
+        display:none
+    }
+    .mdi-alert-decagram{
+        font-size: 30px;
+    }
+</style>
+
+<main>
+    
+    <div class="form-filter card border-0 border-bottom mt-2">
+        <form action="{% url 'reportIndex' %}" method="POST">
+            {% csrf_token %}
+            <div class="filter-badge p-1">
+                <b><small><u>Filters ? </u></small></b>
+
+            </div>
+            <div class="card-body row">
+                <div class="col-md-2">
+                    <div class="form-group">
+                        <label for="" class="control-label">From ( <small>Date</small> )</label>
+                        <input type="date" name="from_date" id="" class="form-control">
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <div class="form-group">
+                        <label for="" class="control-label">To ( <small>Date</small> )</label>
+                        <input type="date" name="to_date" id="" class="form-control">
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <div class="form-group">
+                        <label for="" class="control-label">Status</label>
+                        <select name="status" id="" class="form-control">
+                            <option value="all">All</option>
+                            <option value="in progress">In Progress</option>
+                            <option value="Completed">Completed</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <div class="form-group">
+                        <label for="" class="control-label">User</label>
+                        <select name="user_id" id="" class="form-control">
+                            <option value="all">All</option>
+                            {% for user in users %}
+                            <option value="{{user.id}}">{{user.username}}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <div class="form-group">
+                        <label for="" class="control-label">Shelter Types</label>
+                        <select name="shelter_type" id="" class="form-control">
+                            <option value="all">All</option>
+                            {% for type in shelter_types %}
+                            <option value="{{type.id}}">{{type.name}} - {{type.code}}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                <input type="hidden" name="has-filter">
+                <div class="col-md-2">
+
+                    <button type="submit" class="btn btn-outline-primary btn-sm mt-3" style="float: right !important;box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;"><i class="mdi mdi-filter-plus-outline"></i></button>
+                </div>
+                <input type="hidden" name="mode" value="run">
+            </div>
+           
+        </form>
+    </div>  
+    <div class="button-area">
+        <span class="btn btn-primary btn-sm mt-4 mb-3" data-target="#generate-pdf" data-toggle="modal"  style="float: right !important;"><i class="mdi mdi-file-plus"></i> Generate PDF</span>
+    </div>
+    <div class="mt-4 p-2" style="box-shadow: rgba(0, 0, 0, 0.05) 0px 6px 24px 0px, rgba(0, 0, 0, 0.08) 0px 0px 0px 1px;clear:both">
+        <div class="filter-badge p-1">
+            <b><small><u>Report Filters ? </u></small></b>
+
+        </div>
+        <div class="filters-data bg-light row p-3 border-bottom">
+            <div class="col-md-4 p-2">
+                <i class="mdi mdi-chevron-right"></i> <b class="text-muted" >From Date : </b> {{filter_data.from_date|checkIfNull}}
+            </div>
+            <div class="col-md-4 p-2">
+                <i class="mdi mdi-chevron-right"></i> <b class="text-muted" >End Date : </b> {{filter_data.to_date|checkIfNull}}
+            </div>
+        
+            <div class="col-md-4 p-2">
+                <i class="mdi mdi-chevron-right"></i> <b class="text-muted" >Status : </b> {{filter_data.status|checkIfNull}}
+            </div>
+            <div class="col-md-4 p-2">
+                <i class="mdi mdi-chevron-right"></i> <b class="text-muted" >User : </b> {{filter_data.user|getUserName}}
+            </div>
+            <div class="col-md-4 p-2">
+                <i class="mdi mdi-chevron-right"></i> <b class="text-muted" >Shelter Type : </b> {{filter_data.shelter_type|getShelterType}}
+            </div>
+        </div>
+        <div class="table-responsive mt-3 ">
+            <table class="table table-condesed table-sm table-hover table-stripped table-bordered" style="width: 150% !important;">
+                <thead class="bg-light" style="height: 50px;">
+                    <tr>
+                        <th>Task Name</th>
+                        <th>Task Description</th>
+                        <th>Start Time</th>
+                        <th>End Time</th>
+                        <th>Status</th>
+                        <th>Initial Odometer</th>
+                        <th>Final Odometer</th>
+                        <th>Task User/Owner</th>
+                        <th>Created At</th>
+                        <th>Shelter Type</th>
+                        <th>Before Img</th>
+                        <th>After Img</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for data in records %}
+                    <tr>
+                        <td style="width: 8%;">{{data.task_name|checkIfNull}}</td>
+                        <td style="width: 8%;" >{{data.task_description|checkIfNull}}</td>
+                        <td style="width: 8%;">{{data.start_time|checkIfNull}}</td>
+                        <td style="width: 8%;">{{data.stop_time|checkIfNull}}</td>
+                        <td style="width: 8%;">{{data.status|checkIfNull}}</td>
+                        <td style="width: 8%;">{{data.odometerbefore|checkIfNull}}</td>
+                        <td style="width: 8%;">{{data.odometerafter|checkIfNull}}</td>
+                        <td style="width: 8%;">{{data.user.first_name|checkIfNull}} {{data.user.lasst_name|checkIfNull}}</td>
+                        <td style="width: 8%;">{{data.createdat|checkIfNull}}</td>
+                        <td style="width: 8%;">{{data.shelter_type.name|checkIfNull}}</td>
+                        <td style="width: 8%;">
+                            {% if  data.beforewash_task_img %}
+                            <img src="{{data.beforewash_task_img.url}}" style="height: 50px; width:120px" alt="">
+                            {% else %}
+                            <img src="{% static 'images/noimg.jpeg' %}" style="height: 50px; width:120px" alt="">
+                            {% endif %}
+    
+                        </td>
+                        <td style="width: 8%;">
+                            {% if data.afterwash_task_img %}
+                            <img src="{{ data.afterwash_task_img.url }}" style="height: 50px; width:120px" alt="">
+                            {% else %}
+                            <img src="{% static 'images/noimg.jpeg' %}" style="height: 50px; width:120px" alt="">
+                            {% endif %}
+                        </td>
+    
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</main>
+{% endblock %}
+{% block ScriptBlock %}
+<div class="modal fade" id="generate-pdf" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form action="{% url 'html_to_pdf' %}" method="post">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <div class="alert alert-primary p-2 d-flex">
+                        <i class="mdi mdi-alert-decagram"></i>
+                        <span class="p-2">
+                            Confirm you want to generate a formattted pdf of the shown data on the table below using the filter parameters given ?
+                        </span>
+                    </div>
+                    <input type="date" value="{{filter_data.from_date}}" name="from_date" id="" class="form-control hidden">
+                    <input type="date" name="to_date" value="{{filter_data.to_date}}" class="form-control hidden">
+                    <input type="hidden" name="status" value="{{filter_data.status}}">
+                    <input type="hidden" name="user_id" value="{{filter_data.user}}">
+                    <input type="hidden" name="shelter_type" value="{{filter_data.shelter_type}}">
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-sm btn-primary" style="width: 150px !important;" type="submit"><i class="mdi mdi-cogs"></i> Yes, Generate</button>
+                    <span class="btn btn-default text-danger btn-sm" data-dismiss="modal">Close</span>
+
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function () {
+        $('.table-sm').DataTable({
+            dom: 'Blfrtip',
+            buttons: [
+              'copy', 'csv', { extend: 'excelHtml5', footer: true }, 'pdf', 'print'
+            ],
+        });
+    });
+</script>
+{% endblock ScriptBlock %}
+
