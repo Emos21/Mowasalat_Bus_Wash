@@ -62,6 +62,7 @@ urlpatterns = [
     path('get/Task-By-Date-Range/<str:start_date>/to/<str:end_date>',getTaskByDateRange,name="getTaskByDateRange"),
     path('report/Index',reportIndex,name="reportIndex"),
     path('html_to_pdf',html_to_pdf,name="html_to_pdf"),
+    path('export_to_excel', views.export_to_excel, name="export_to_excel"),
 
 ] 
 

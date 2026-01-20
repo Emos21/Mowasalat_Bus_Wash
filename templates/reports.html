@@ -83,8 +83,9 @@
            
         </form>
     </div>  
-    <div class="button-area">
-        <span class="btn btn-primary btn-sm mt-4 mb-3" data-target="#generate-pdf" data-toggle="modal"  style="float: right !important;"><i class="mdi mdi-file-plus"></i> Generate PDF</span>
+    <div class="button-area" style="display: flex; justify-content: flex-end; gap: 10px;">
+        <span class="btn btn-success btn-sm mt-4 mb-3" data-target="#generate-excel" data-toggle="modal"><i class="mdi mdi-file-excel"></i> Export Excel</span>
+        <span class="btn btn-primary btn-sm mt-4 mb-3" data-target="#generate-pdf" data-toggle="modal"><i class="mdi mdi-file-plus"></i> Generate PDF</span>
     </div>
     <div class="mt-4 p-2" style="box-shadow: rgba(0, 0, 0, 0.05) 0px 6px 24px 0px, rgba(0, 0, 0, 0.08) 0px 0px 0px 1px;clear:both">
         <div class="filter-badge p-1">
@@ -187,6 +188,33 @@
                     <button class="btn btn-sm btn-primary" style="width: 150px !important;" type="submit"><i class="mdi mdi-cogs"></i> Yes, Generate</button>
                     <span class="btn btn-default text-danger btn-sm" data-dismiss="modal">Close</span>
 
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="generate-excel" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form action="{% url 'export_to_excel' %}" method="post">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <div class="alert alert-success p-2 d-flex">
+                        <i class="mdi mdi-alert-decagram"></i>
+                        <span class="p-2">
+                            Confirm you want to export an Excel spreadsheet of the shown data using the filter parameters given?
+                        </span>
+                    </div>
+                    <input type="date" value="{{filter_data.from_date}}" name="from_date" id="" class="form-control hidden">
+                    <input type="date" name="to_date" value="{{filter_data.to_date}}" class="form-control hidden">
+                    <input type="hidden" name="status" value="{{filter_data.status}}">
+                    <input type="hidden" name="user_id" value="{{filter_data.user}}">
+                    <input type="hidden" name="shelter_type" value="{{filter_data.shelter_type}}">
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-sm btn-success" style="width: 150px !important;" type="submit"><i class="mdi mdi-file-excel"></i> Yes, Export</button>
+                    <span class="btn btn-default text-danger btn-sm" data-dismiss="modal">Close</span>
                 </div>
             </form>
         </div>

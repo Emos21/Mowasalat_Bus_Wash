@@ -581,5 +581,89 @@ def html_to_pdf(request):
     if not pdf.err:
         return HttpResponse(result.getvalue(), content_type='application/pdf')
     return None
-    
+
+
+def export_to_excel(request):
+    """Export tasks to Excel file"""
+    import openpyxl
+    from openpyxl.styles import Font, Alignment, PatternFill, Border, Side
+    from openpyxl.utils import get_column_letter
+    from django.http import HttpResponse
+
+    q1 = Q()
+    q2 = Q()
+    q3 = Q()
+    q4 = Q()
+    q5 = Q()
+
+    if 'from_date' in request.POST and request.POST['from_date'] != '':
+        q1 = Q(createdat__gte=request.POST['from_date'])
+    if 'to_date' in request.POST and request.POST['to_date'] != '':
+        q2 = Q(createdat__lte=request.POST['to_date'])
+    if 'status' in request.POST and request.POST['status'] != 'all' and request.POST['status'] != '':
+        q3 = Q(status=request.POST['status'])
+    if 'user_id' in request.POST and request.POST['user_id'] != 'all' and request.POST['user_id'] != '':
+        q4 = Q(user__id=request.POST['user_id'])
+    if 'shelter_type' in request.POST and request.POST['shelter_type'] != 'all' and request.POST['shelter_type'] != '':
+        q5 = Q(shelter_type__id=request.POST['shelter_type'])
+
+    tasks = Task.objects.filter(q1, q2, q3, q4, q5).select_related('user', 'site_id', 'shelter_type')
+
+    # Create workbook
+    wb = openpyxl.Workbook()
+    ws = wb.active
+    ws.title = "Bus Wash Tasks Report"
+
+    # Styles
+    header_font = Font(bold=True, color="FFFFFF", size=12)
+    header_fill = PatternFill(start_color="008CFF", end_color="008CFF", fill_type="solid")
+    header_alignment = Alignment(horizontal="center", vertical="center")
+    thin_border = Border(
+        left=Side(style='thin'),
+        right=Side(style='thin'),
+        top=Side(style='thin'),
+        bottom=Side(style='thin')
+    )
+
+    # Headers
+    headers = [
+        "ID", "Task Name", "Description", "Status", "Assigned To",
+        "Site Code", "Location", "Shelter Type", "Has Damage",
+        "Scanned", "Created Date"
+    ]
+
+    for col_num, header in enumerate(headers, 1):
+        cell = ws.cell(row=1, column=col_num, value=header)
+        cell.font = header_font
+        cell.fill = header_fill
+        cell.alignment = header_alignment
+        cell.border = thin_border
+
+    # Data rows
+    for row_num, task in enumerate(tasks, 2):
+        ws.cell(row=row_num, column=1, value=task.id).border = thin_border
+        ws.cell(row=row_num, column=2, value=task.task_name).border = thin_border
+        ws.cell(row=row_num, column=3, value=task.task_description[:100] + '...' if len(task.task_description) > 100 else task.task_description).border = thin_border
+        ws.cell(row=row_num, column=4, value=task.status).border = thin_border
+        ws.cell(row=row_num, column=5, value=task.user.username if task.user else 'Unassigned').border = thin_border
+        ws.cell(row=row_num, column=6, value=task.site_id.site_code if task.site_id else 'N/A').border = thin_border
+        ws.cell(row=row_num, column=7, value=task.site_id.location.name if task.site_id and task.site_id.location else 'N/A').border = thin_border
+        ws.cell(row=row_num, column=8, value=task.shelter_type.name if task.shelter_type else 'N/A').border = thin_border
+        ws.cell(row=row_num, column=9, value='Yes' if task.has_damage else 'No').border = thin_border
+        ws.cell(row=row_num, column=10, value='Yes' if task.is_scanned else 'No').border = thin_border
+        ws.cell(row=row_num, column=11, value=str(task.createdat) if task.createdat else 'N/A').border = thin_border
+
+    # Auto-adjust column widths
+    for col_num in range(1, len(headers) + 1):
+        ws.column_dimensions[get_column_letter(col_num)].width = 18
+
+    # Prepare response
+    response = HttpResponse(
+        content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    )
+    response['Content-Disposition'] = 'attachment; filename="mowasalat_tasks_report.xlsx"'
+
+    wb.save(response)
+    return response
+
 
