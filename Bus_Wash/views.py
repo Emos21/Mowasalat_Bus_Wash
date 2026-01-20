@@ -806,3 +806,69 @@ def run_schedule_now(request, pk):
     return redirect('schedule_list')
 
 
+# ==================== PERFORMANCE METRICS DASHBOARD ====================
+
+def performance_dashboard(request):
+    """Display performance metrics for workers and locations"""
+    from django.db.models import Count
+
+    # Worker performance
+    users_with_tasks = User.objects.filter(task__isnull=False).distinct()
+
+    worker_stats = []
+    for user in users_with_tasks:
+        user_tasks = Task.objects.filter(user=user)
+        completed = user_tasks.filter(status='Completed').count()
+        total = user_tasks.count()
+        in_progress = user_tasks.filter(status='in progress').count()
+        completion_rate = round((completed / total * 100), 1) if total > 0 else 0
+
+        worker_stats.append({
+            'user': user,
+            'total_tasks': total,
+            'completed_tasks': completed,
+            'in_progress': in_progress,
+            'completion_rate': completion_rate
+        })
+
+    # Sort by completion rate descending
+    worker_stats.sort(key=lambda x: x['completion_rate'], reverse=True)
+
+    # Location performance
+    location_stats = Location.objects.annotate(
+        total_tasks=Count('site__task'),
+        completed_tasks=Count('site__task', filter=Q(site__task__status='Completed'))
+    ).filter(total_tasks__gt=0)
+
+    # Calculate location completion rates
+    location_data = []
+    for loc in location_stats:
+        rate = round((loc.completed_tasks / loc.total_tasks * 100), 1) if loc.total_tasks > 0 else 0
+        location_data.append({
+            'location': loc,
+            'total_tasks': loc.total_tasks,
+            'completed_tasks': loc.completed_tasks,
+            'completion_rate': rate
+        })
+
+    # Sort locations by completion rate
+    location_data.sort(key=lambda x: x['completion_rate'], reverse=True)
+
+    # Overall summary
+    total_tasks = Task.objects.count()
+    completed_tasks = Task.objects.filter(status='Completed').count()
+    avg_completion_rate = round(sum(w['completion_rate'] for w in worker_stats) / len(worker_stats), 1) if worker_stats else 0
+
+    context = {
+        'worker_stats': worker_stats,
+        'location_data': location_data,
+        'total_workers': len(worker_stats),
+        'total_locations': len(location_data),
+        'total_tasks': total_tasks,
+        'completed_tasks': completed_tasks,
+        'avg_completion_rate': avg_completion_rate,
+        'page_title': 'Performance Metrics'
+    }
+    return render(request, 'performance/dashboard.html', context)
+
+

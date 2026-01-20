@@ -72,6 +72,9 @@ urlpatterns = [
     path('schedules/toggle/<int:pk>/', views.toggle_schedule, name='toggle_schedule'),
     path('schedules/run/<int:pk>/', views.run_schedule_now, name='run_schedule_now'),
 
+    # Performance Dashboard
+    path('performance/', views.performance_dashboard, name='performance_dashboard'),
+
 ] 
 
 if settings.DEBUG == True:

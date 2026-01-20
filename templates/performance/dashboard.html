@@ -1,0 +1,447 @@
+{% extends "base.html" %}
+
+{% load static %}
+{% block content %}
+
+<style>
+    .performance-header {
+        margin-bottom: 30px;
+    }
+    .performance-header h4 {
+        font-weight: 700;
+        color: #333;
+        margin-bottom: 5px;
+    }
+    .performance-header p {
+        color: #6c757d;
+        margin: 0;
+    }
+
+    /* Summary Cards */
+    .summary-cards {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 20px;
+        margin-bottom: 30px;
+    }
+    .summary-card {
+        background: white;
+        border-radius: 12px;
+        padding: 20px;
+        box-shadow: 0 2px 15px rgba(0, 0, 0, 0.08);
+        text-align: center;
+    }
+    .summary-card .value {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #008cff;
+    }
+    .summary-card .label {
+        color: #6c757d;
+        font-size: 0.9rem;
+        margin-top: 5px;
+    }
+    .summary-card.highlight {
+        background: linear-gradient(135deg, #008cff 0%, #00d4ff 100%);
+    }
+    .summary-card.highlight .value,
+    .summary-card.highlight .label {
+        color: white;
+    }
+
+    /* Performance Tables */
+    .performance-section {
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 2px 15px rgba(0, 0, 0, 0.08);
+        padding: 25px;
+        margin-bottom: 25px;
+    }
+    .section-title {
+        font-weight: 700;
+        color: #333;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    .section-title ion-icon {
+        font-size: 24px;
+        color: #008cff;
+    }
+
+    /* Progress Bar */
+    .progress-container {
+        width: 100%;
+        height: 8px;
+        background: #e9ecef;
+        border-radius: 4px;
+        overflow: hidden;
+    }
+    .progress-fill {
+        height: 100%;
+        border-radius: 4px;
+        transition: width 0.5s ease;
+    }
+    .progress-fill.excellent { background: #28a745; }
+    .progress-fill.good { background: #17a2b8; }
+    .progress-fill.average { background: #ffc107; }
+    .progress-fill.poor { background: #dc3545; }
+
+    /* Worker Card */
+    .worker-card {
+        display: flex;
+        align-items: center;
+        padding: 15px;
+        background: #f8f9fa;
+        border-radius: 10px;
+        margin-bottom: 10px;
+    }
+    .worker-rank {
+        width: 35px;
+        height: 35px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        margin-right: 15px;
+    }
+    .rank-1 { background: #ffd700; color: #333; }
+    .rank-2 { background: #c0c0c0; color: #333; }
+    .rank-3 { background: #cd7f32; color: white; }
+    .rank-default { background: #e9ecef; color: #495057; }
+
+    .worker-info {
+        flex: 1;
+    }
+    .worker-name {
+        font-weight: 600;
+        color: #333;
+    }
+    .worker-stats {
+        font-size: 0.8rem;
+        color: #6c757d;
+    }
+    .worker-rate {
+        text-align: right;
+    }
+    .worker-rate .rate-value {
+        font-size: 1.2rem;
+        font-weight: 700;
+    }
+    .worker-rate .rate-label {
+        font-size: 0.75rem;
+        color: #6c757d;
+    }
+
+    /* Location Stats */
+    .location-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 15px;
+    }
+    .location-card {
+        background: #f8f9fa;
+        border-radius: 10px;
+        padding: 15px;
+    }
+    .location-name {
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 10px;
+    }
+    .location-stats-row {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 5px;
+        font-size: 0.85rem;
+    }
+    .location-stats-row .stat-label {
+        color: #6c757d;
+    }
+    .location-stats-row .stat-value {
+        font-weight: 600;
+    }
+
+    /* Chart Container */
+    .chart-container {
+        position: relative;
+        height: 300px;
+        margin-top: 20px;
+    }
+
+    /* Empty State */
+    .empty-state {
+        text-align: center;
+        padding: 40px;
+        color: #6c757d;
+    }
+    .empty-state ion-icon {
+        font-size: 60px;
+        margin-bottom: 15px;
+    }
+
+    /* Dark Mode */
+    [data-theme="dark"] .performance-header h4,
+    [data-theme="dark"] .section-title,
+    [data-theme="dark"] .worker-name,
+    [data-theme="dark"] .location-name {
+        color: var(--text-primary);
+    }
+    [data-theme="dark"] .summary-card,
+    [data-theme="dark"] .performance-section {
+        background: var(--bg-card);
+    }
+    [data-theme="dark"] .worker-card,
+    [data-theme="dark"] .location-card {
+        background: var(--bg-secondary);
+    }
+    [data-theme="dark"] .progress-container {
+        background: var(--border-color);
+    }
+</style>
+
+<main>
+    <div class="performance-header">
+        <h4 data-translate="Performance Metrics"><ion-icon name="bar-chart-outline"></ion-icon> Performance Metrics</h4>
+        <p>Track worker productivity and location efficiency</p>
+    </div>
+
+    <!-- Summary Cards -->
+    <div class="summary-cards">
+        <div class="summary-card highlight">
+            <div class="value">{{ avg_completion_rate }}%</div>
+            <div class="label">Avg Completion Rate</div>
+        </div>
+        <div class="summary-card">
+            <div class="value">{{ total_workers }}</div>
+            <div class="label">Active Workers</div>
+        </div>
+        <div class="summary-card">
+            <div class="value">{{ total_locations }}</div>
+            <div class="label">Active Locations</div>
+        </div>
+        <div class="summary-card">
+            <div class="value">{{ completed_tasks }}/{{ total_tasks }}</div>
+            <div class="label">Tasks Completed</div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Worker Performance -->
+        <div class="col-md-6">
+            <div class="performance-section">
+                <h5 class="section-title">
+                    <ion-icon name="people-outline"></ion-icon>
+                    Worker Leaderboard
+                </h5>
+                {% if worker_stats %}
+                {% for stat in worker_stats %}
+                <div class="worker-card">
+                    <div class="worker-rank {% if forloop.counter == 1 %}rank-1{% elif forloop.counter == 2 %}rank-2{% elif forloop.counter == 3 %}rank-3{% else %}rank-default{% endif %}">
+                        {{ forloop.counter }}
+                    </div>
+                    <div class="worker-info">
+                        <div class="worker-name">
+                            {{ stat.user.first_name }} {{ stat.user.last_name }}
+                            {% if not stat.user.first_name %}{{ stat.user.username }}{% endif %}
+                        </div>
+                        <div class="worker-stats">
+                            {{ stat.completed_tasks }} completed | {{ stat.in_progress }} in progress
+                        </div>
+                        <div class="progress-container mt-2">
+                            <div class="progress-fill {% if stat.completion_rate >= 80 %}excellent{% elif stat.completion_rate >= 60 %}good{% elif stat.completion_rate >= 40 %}average{% else %}poor{% endif %}"
+                                 style="width: {{ stat.completion_rate }}%"></div>
+                        </div>
+                    </div>
+                    <div class="worker-rate">
+                        <div class="rate-value {% if stat.completion_rate >= 80 %}text-success{% elif stat.completion_rate >= 60 %}text-info{% elif stat.completion_rate >= 40 %}text-warning{% else %}text-danger{% endif %}">
+                            {{ stat.completion_rate }}%
+                        </div>
+                        <div class="rate-label">completion</div>
+                    </div>
+                </div>
+                {% endfor %}
+                {% else %}
+                <div class="empty-state">
+                    <ion-icon name="people-outline"></ion-icon>
+                    <p>No worker data available</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Location Performance -->
+        <div class="col-md-6">
+            <div class="performance-section">
+                <h5 class="section-title">
+                    <ion-icon name="location-outline"></ion-icon>
+                    Location Performance
+                </h5>
+                {% if location_data %}
+                <div class="location-grid">
+                    {% for data in location_data %}
+                    <div class="location-card">
+                        <div class="location-name">
+                            <ion-icon name="business-outline"></ion-icon>
+                            {{ data.location.name }}
+                        </div>
+                        <div class="location-stats-row">
+                            <span class="stat-label">Total Tasks</span>
+                            <span class="stat-value">{{ data.total_tasks }}</span>
+                        </div>
+                        <div class="location-stats-row">
+                            <span class="stat-label">Completed</span>
+                            <span class="stat-value text-success">{{ data.completed_tasks }}</span>
+                        </div>
+                        <div class="location-stats-row">
+                            <span class="stat-label">Completion Rate</span>
+                            <span class="stat-value {% if data.completion_rate >= 80 %}text-success{% elif data.completion_rate >= 60 %}text-info{% elif data.completion_rate >= 40 %}text-warning{% else %}text-danger{% endif %}">
+                                {{ data.completion_rate }}%
+                            </span>
+                        </div>
+                        <div class="progress-container mt-2">
+                            <div class="progress-fill {% if data.completion_rate >= 80 %}excellent{% elif data.completion_rate >= 60 %}good{% elif data.completion_rate >= 40 %}average{% else %}poor{% endif %}"
+                                 style="width: {{ data.completion_rate }}%"></div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="empty-state">
+                    <ion-icon name="location-outline"></ion-icon>
+                    <p>No location data available</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts Section -->
+    <div class="performance-section">
+        <h5 class="section-title">
+            <ion-icon name="analytics-outline"></ion-icon>
+            Performance Overview
+        </h5>
+        <div class="row">
+            <div class="col-md-6">
+                <div class="chart-container">
+                    <canvas id="workerChart"></canvas>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="chart-container">
+                    <canvas id="locationChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+{% endblock %}
+
+{% block ScriptBlock %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Worker Performance Chart
+    const workerCtx = document.getElementById('workerChart');
+    if (workerCtx) {
+        const workerData = [
+            {% for stat in worker_stats %}
+            {
+                name: "{{ stat.user.first_name|default:stat.user.username }}",
+                rate: {{ stat.completion_rate }}
+            }{% if not forloop.last %},{% endif %}
+            {% endfor %}
+        ];
+
+        new Chart(workerCtx, {
+            type: 'bar',
+            data: {
+                labels: workerData.map(w => w.name),
+                datasets: [{
+                    label: 'Completion Rate (%)',
+                    data: workerData.map(w => w.rate),
+                    backgroundColor: workerData.map(w => {
+                        if (w.rate >= 80) return '#28a745';
+                        if (w.rate >= 60) return '#17a2b8';
+                        if (w.rate >= 40) return '#ffc107';
+                        return '#dc3545';
+                    }),
+                    borderRadius: 5
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'Worker Completion Rates'
+                    },
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 100,
+                        ticks: {
+                            callback: function(value) {
+                                return value + '%';
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    // Location Performance Chart
+    const locationCtx = document.getElementById('locationChart');
+    if (locationCtx) {
+        const locationData = [
+            {% for data in location_data %}
+            {
+                name: "{{ data.location.name }}",
+                total: {{ data.total_tasks }},
+                completed: {{ data.completed_tasks }}
+            }{% if not forloop.last %},{% endif %}
+            {% endfor %}
+        ];
+
+        new Chart(locationCtx, {
+            type: 'doughnut',
+            data: {
+                labels: locationData.map(l => l.name),
+                datasets: [{
+                    data: locationData.map(l => l.completed),
+                    backgroundColor: [
+                        '#008cff', '#00d4ff', '#28a745', '#ffc107', '#dc3545',
+                        '#6f42c1', '#e83e8c', '#fd7e14', '#20c997', '#17a2b8'
+                    ],
+                    borderWidth: 2,
+                    borderColor: '#fff'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'Completed Tasks by Location'
+                    },
+                    legend: {
+                        position: 'right'
+                    }
+                }
+            }
+        });
+    }
+});
+</script>
+{% endblock ScriptBlock %}
