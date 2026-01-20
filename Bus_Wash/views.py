@@ -813,7 +813,7 @@ def performance_dashboard(request):
     from django.db.models import Count
 
     # Worker performance
-    users_with_tasks = User.objects.filter(task__isnull=False).distinct()
+    users_with_tasks = User.objects.filter(tasks_assigned__isnull=False).distinct()
 
     worker_stats = []
     for user in users_with_tasks:
