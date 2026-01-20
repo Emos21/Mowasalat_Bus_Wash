@@ -1,32 +1,283 @@
 {% extends "base.html" %}
 
-{% block title %}Home{% endblock %}
+{% block title %}Task Details{% endblock %}
 {% block content %}
 {% load static %}
 
+<style>
+    #wash_data_card {
+        width: 100%;
+        height: 100%;
+        border-radius: 10px;
+        box-shadow: 0 2px 22px 0 rgba(0, 0, 0, 0.1), 0 4px 20px 0 rgba(0, 0, 0, 0.15);
+        padding: 20px;
+        background: white;
+    }
+
+    /* Photo Comparison Slider */
+    .comparison-container {
+        position: relative;
+        width: 100%;
+        max-width: 600px;
+        margin: 20px auto;
+        overflow: hidden;
+        border-radius: 12px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    }
+
+    .comparison-container img {
+        display: block;
+        width: 100%;
+        height: auto;
+    }
+
+    .comparison-before {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 50%;
+        height: 100%;
+        overflow: hidden;
+    }
+
+    .comparison-before img {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 200%;
+        max-width: none;
+    }
+
+    .comparison-slider {
+        position: absolute;
+        top: 0;
+        left: 50%;
+        width: 4px;
+        height: 100%;
+        background: #008cff;
+        cursor: ew-resize;
+        transform: translateX(-50%);
+        z-index: 10;
+    }
+
+    .comparison-slider::before {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 40px;
+        height: 40px;
+        background: #008cff;
+        border-radius: 50%;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+    }
+
+    .comparison-slider::after {
+        content: '\2194';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        font-size: 20px;
+        color: white;
+        font-weight: bold;
+    }
+
+    .comparison-labels {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 15px;
+        padding: 0 10px;
+    }
+
+    .comparison-labels span {
+        padding: 5px 15px;
+        background: #f8f9fa;
+        border-radius: 20px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: #495057;
+    }
+
+    .comparison-labels .before-label {
+        background: #fff3cd;
+        color: #856404;
+    }
+
+    .comparison-labels .after-label {
+        background: #d4edda;
+        color: #155724;
+    }
+
+    /* Traditional View */
+    .traditional-view {
+        display: flex;
+        gap: 20px;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    .traditional-view .image-card {
+        flex: 1;
+        min-width: 250px;
+        max-width: 300px;
+        text-align: center;
+    }
+
+    .traditional-view .image-card img {
+        width: 100%;
+        border-radius: 10px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        transition: transform 0.3s ease;
+    }
+
+    .traditional-view .image-card img:hover {
+        transform: scale(1.05);
+    }
+
+    .traditional-view .image-card p {
+        margin-top: 10px;
+        font-weight: 600;
+        color: #495057;
+    }
+
+    /* View Toggle */
+    .view-toggle {
+        display: flex;
+        justify-content: center;
+        gap: 10px;
+        margin-bottom: 20px;
+    }
+
+    .view-toggle .btn {
+        padding: 8px 20px;
+        border-radius: 25px;
+        font-weight: 500;
+    }
+
+    .view-toggle .btn.active {
+        background: #008cff;
+        color: white;
+        border-color: #008cff;
+    }
+
+    /* Task Header */
+    .task-header {
+        margin-bottom: 25px;
+        padding-bottom: 15px;
+        border-bottom: 1px solid #e9ecef;
+    }
+
+    .task-header h3 {
+        font-weight: 700;
+        color: #333;
+        margin-bottom: 5px;
+    }
+
+    .task-header h4 {
+        color: #6c757d;
+        font-size: 1rem;
+    }
+
+    .task-header p {
+        color: #adb5bd;
+        margin: 0;
+    }
+
+    /* Dark Mode */
+    [data-theme="dark"] #wash_data_card {
+        background: var(--bg-card);
+    }
+    [data-theme="dark"] .task-header h3 {
+        color: var(--text-primary);
+    }
+    [data-theme="dark"] .comparison-labels span {
+        background: var(--bg-secondary);
+        color: var(--text-primary);
+    }
+</style>
 
 <div id="wash_data_card">
-    <h3>{{ data.name }}</h3>
-    <h4>{{ data.location }}</h4>
-    <p>{{ data.typeofwash }}</p>
-    <p>{{ data.date_washed|time }} - {{data.stop_time|time}}</p>
+    <div class="task-header">
+        <h3>{{ data.name }}</h3>
+        <h4><ion-icon name="location-outline"></ion-icon> {{ data.location }}</h4>
+        <p><ion-icon name="time-outline"></ion-icon> {{ data.date_washed|time }} - {{data.stop_time|time}} | {{ data.typeofwash }}</p>
+    </div>
 
-    <div id="wash_data_card_img">
-        <p>Image Before Wash</p>
-        <img src="{{ data.beforewashimg.url }}" alt="before_wash">
-        <p>Image After Wash</p>
-        {% if data.afterwashimg %}
-        <img src="{{ data.afterwashimg.url }}" alt="after_wash">
-        {% else %}
-        <span class="badge badge-warning" style="margin-left: 10%;">Not Uploaded</span>
+    {% if data.beforewashimg and data.afterwashimg %}
+    <div class="view-toggle">
+        <button class="btn btn-outline-primary active" onclick="showComparisonView()">
+            <ion-icon name="git-compare-outline"></ion-icon> Comparison Slider
+        </button>
+        <button class="btn btn-outline-primary" onclick="showTraditionalView()">
+            <ion-icon name="images-outline"></ion-icon> Side by Side
+        </button>
+    </div>
+    {% endif %}
+
+    <div id="comparison-view" class="{% if not data.beforewashimg or not data.afterwashimg %}d-none{% endif %}">
+        {% if data.beforewashimg and data.afterwashimg %}
+        <div class="comparison-container" id="imageCompare">
+            <img src="{{ data.afterwashimg.url }}" alt="After Wash" class="comparison-after">
+            <div class="comparison-before">
+                <img src="{{ data.beforewashimg.url }}" alt="Before Wash">
+            </div>
+            <div class="comparison-slider" id="comparisonSlider"></div>
+        </div>
+        <div class="comparison-labels">
+            <span class="before-label"><ion-icon name="arrow-back-outline"></ion-icon> Before</span>
+            <span class="after-label">After <ion-icon name="arrow-forward-outline"></ion-icon></span>
+        </div>
         {% endif %}
     </div>
 
-    <div class="damages mt-3">
-        <h5 style="color: black !important;">Damages</h5>
+    <div id="traditional-view" class="traditional-view d-none">
+        <div class="image-card">
+            <p class="text-warning"><ion-icon name="camera-outline"></ion-icon> Before Wash</p>
+            {% if data.beforewashimg %}
+            <img src="{{ data.beforewashimg.url }}" alt="Before Wash">
+            {% else %}
+            <span class="badge badge-secondary">No Image</span>
+            {% endif %}
+        </div>
+        <div class="image-card">
+            <p class="text-success"><ion-icon name="checkmark-circle-outline"></ion-icon> After Wash</p>
+            {% if data.afterwashimg %}
+            <img src="{{ data.afterwashimg.url }}" alt="After Wash">
+            {% else %}
+            <span class="badge badge-warning">Not Uploaded</span>
+            {% endif %}
+        </div>
+    </div>
+
+    {% if not data.beforewashimg or not data.afterwashimg %}
+    <div class="traditional-view">
+        <div class="image-card">
+            <p class="text-warning"><ion-icon name="camera-outline"></ion-icon> Before Wash</p>
+            {% if data.beforewashimg %}
+            <img src="{{ data.beforewashimg.url }}" alt="Before Wash">
+            {% else %}
+            <span class="badge badge-secondary">No Image</span>
+            {% endif %}
+        </div>
+        <div class="image-card">
+            <p class="text-success"><ion-icon name="checkmark-circle-outline"></ion-icon> After Wash</p>
+            {% if data.afterwashimg %}
+            <img src="{{ data.afterwashimg.url }}" alt="After Wash">
+            {% else %}
+            <span class="badge badge-warning">Not Uploaded</span>
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="damages mt-4">
+        <h5 style="color: #333; font-weight: 600;"><ion-icon name="warning-outline"></ion-icon> Damage Reports</h5>
+        {% if damages %}
         <div class="table-responsive">
             <table class="table table-condensed table-sm table-bordered">
-                <thead>
+                <thead class="bg-light">
                     <tr>
                         <th>#</th>
                         <th>Title</th>
@@ -38,35 +289,91 @@
                 <tbody>
                     {% for damage in damages %}
                     <tr>
-                        <td><i class="fa-solid fa-pencil text-primary"></i></td>
+                        <td><ion-icon name="alert-circle-outline" class="text-danger"></ion-icon></td>
                         <td>{{damage.name}}</td>
                         <td>{{damage.comment}}</td>
                         <td>{{damage.user.username}}</td>
-                        <td><a href="{{damage.avatar.url}}" target="_blank" class="btn btn-sm btn-info">Download</a>
+                        <td><a href="{{damage.avatar.url}}" target="_blank" class="btn btn-sm btn-info"><ion-icon name="download-outline"></ion-icon> Download</a>
                         </td>
                     </tr>
                     {% endfor %}
                 </tbody>
             </table>
         </div>
+        {% else %}
+        <p class="text-muted"><ion-icon name="checkmark-circle-outline"></ion-icon> No damage reports for this task.</p>
+        {% endif %}
     </div>
 </div>
 
+<script>
+// Photo Comparison Slider
+document.addEventListener('DOMContentLoaded', function() {
+    const container = document.getElementById('imageCompare');
+    const slider = document.getElementById('comparisonSlider');
+    const beforeDiv = document.querySelector('.comparison-before');
 
+    if (!container || !slider || !beforeDiv) return;
 
+    let isDragging = false;
 
-<style>
-    #wash_data_card {
-        width: 100%;
-        height: 100%;
-        border-radius: 10px;
-        box-shadow: 0 2px 22px 0 rgba(0, 0, 0, 0.1), 0 4px 20px 0 rgba(0, 0, 0, 0.15);
+    function updateSliderPosition(x) {
+        const rect = container.getBoundingClientRect();
+        let position = (x - rect.left) / rect.width * 100;
+        position = Math.max(0, Math.min(100, position));
+
+        slider.style.left = position + '%';
+        beforeDiv.style.width = position + '%';
     }
 
-    #wash_data_card_img img:hover {
-        transform: scale(2);
-    }
-</style>
+    slider.addEventListener('mousedown', function(e) {
+        isDragging = true;
+        e.preventDefault();
+    });
 
+    document.addEventListener('mousemove', function(e) {
+        if (!isDragging) return;
+        updateSliderPosition(e.clientX);
+    });
+
+    document.addEventListener('mouseup', function() {
+        isDragging = false;
+    });
+
+    // Touch support
+    slider.addEventListener('touchstart', function(e) {
+        isDragging = true;
+    });
+
+    document.addEventListener('touchmove', function(e) {
+        if (!isDragging) return;
+        updateSliderPosition(e.touches[0].clientX);
+    });
+
+    document.addEventListener('touchend', function() {
+        isDragging = false;
+    });
+
+    // Click on container to move slider
+    container.addEventListener('click', function(e) {
+        updateSliderPosition(e.clientX);
+    });
+});
+
+// View Toggle
+function showComparisonView() {
+    document.getElementById('comparison-view').classList.remove('d-none');
+    document.getElementById('traditional-view').classList.add('d-none');
+    document.querySelectorAll('.view-toggle .btn').forEach(btn => btn.classList.remove('active'));
+    document.querySelector('.view-toggle .btn:first-child').classList.add('active');
+}
+
+function showTraditionalView() {
+    document.getElementById('comparison-view').classList.add('d-none');
+    document.getElementById('traditional-view').classList.remove('d-none');
+    document.querySelectorAll('.view-toggle .btn').forEach(btn => btn.classList.remove('active'));
+    document.querySelector('.view-toggle .btn:last-child').classList.add('active');
+}
+</script>
 
 {% endblock %}
